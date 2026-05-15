@@ -1,0 +1,10 @@
+# robots.txt for Casa Direta
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /chat/
+Disallow: /verify/request
+Disallow: /contracts/
+Disallow: /favorites/
+Sitemap: https://casadireta.com/sitemap.xml

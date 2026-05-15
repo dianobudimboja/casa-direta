@@ -1,0 +1,206 @@
+<!-- templates/auth/login.html - Atualizar o campo email_or_phone -->
+
+{% extends "base.html" %}
+
+{% set hide_navbar = true %}
+
+{% block title %}Entrar - Casa Direta{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <i class="fas fa-home"></i>
+                <span>Casa<span class="highlight">Direta</span></span>
+            </div>
+            <h1>Bem-vindo de Volta</h1>
+            <p>Entre na sua Conta para continuar</p>
+        </div>
+
+        <form method="POST" class="auth-form">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                <label class="form-label" for="email_or_phone">
+                    <i class="fas fa-envelope"></i> Email ou Telefone
+                </label>
+                {{ form.email_or_phone(class="form-control", placeholder="seu@email.com ou 923456789") }}
+                {% for error in form.email_or_phone.errors %}
+                <small class="error-text">{{ error }}</small>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">
+                    <i class="fas fa-lock"></i> Palavra-passe
+                </label>
+                {{ form.password(class="form-control", placeholder="••••••••") }}
+                {% for error in form.password.errors %}
+                <small class="error-text">{{ error }}</small>
+                {% endfor %}
+            </div>
+
+            <div class="form-group checkbox-group">
+                {{ form.remember(class="checkbox") }}
+                <label for="remember">Lembrar-me</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fas fa-sign-in-alt"></i> Entrar
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Não tem Conta? <a href="{{ url_for('auth.register') }}">Criar Conta Grátis</a></p>
+            <p><a href="{{ url_for('password.forgot_password') }}">Esqueceu-se da Palavra-passe?</a></p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .auth-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    }
+
+    .auth-card {
+        max-width: 450px;
+        width: 100%;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1.5rem;
+        padding: 2rem;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .auth-logo {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+    }
+
+    .auth-logo i {
+        color: var(--primary);
+        font-size: 2rem;
+    }
+
+    .auth-logo .highlight {
+        color: var(--primary);
+    }
+
+    .auth-header h1 {
+        font-size: 1.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-header p {
+        color: var(--text-muted);
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        font-family: inherit;
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        color: var(--text-primary);
+        transition: border-color 0.2s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .error-text {
+        color: var(--danger);
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .checkbox {
+        width: 1rem;
+        height: 1rem;
+        cursor: pointer;
+    }
+
+    .btn-block {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn-primary {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+        transform: translateY(-1px);
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .auth-footer p {
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .auth-footer a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,259 @@
+<!-- templates/admin/verifications.html - VERSÃO CORRIGIDA -->
+{% extends "base.html" %}
+
+{% block title %}Pedidos de Verificação - Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="admin-header">
+        <h1><i class="fas fa-id-card"></i> Pedidos de Verificação</h1>
+        <div class="filter-tabs">
+            <a href="{{ url_for('admin.verifications', status='pending') }}"
+                class="tab {% if current_status == 'pending' %}active{% endif %}">
+                Pendentes ({{ pending_count|int if pending_count else 0 }})
+            </a>
+            <a href="{{ url_for('admin.verifications', status='approved') }}"
+                class="tab {% if current_status == 'approved' %}active{% endif %}">
+                Aprovados ({{ approved_count|int if approved_count else 0 }})
+            </a>
+            <a href="{{ url_for('admin.verifications', status='rejected') }}"
+                class="tab {% if current_status == 'rejected' %}active{% endif %}">
+                Rejeitados ({{ rejected_count|int if rejected_count else 0 }})
+            </a>
+        </div>
+    </div>
+
+    <div class="verifications-list">
+        {% if users.items %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Utilizador</th>
+                    <th>Tipo</th>
+                    <th>Solicitado em</th>
+                    <th>Documentos</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users.items %}
+                <tr class="{% if user.verification_status == 'pending' %}pending-row{% endif %}">
+                    <td>
+                        <strong>{{ user.name }}</strong><br>
+                        <small>{{ user.email }}</small>
+                    </td>
+                    <td>
+                        {% if user.is_landlord %}
+                        <span class="badge-landlord">🏢 Senhorio</span>
+                        {% else %}
+                        <span class="badge-tenant">👤 Inquilino</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ user.verification_requested_at.strftime('%d/%m/%Y %H:%M') if user.verification_requested_at
+                        else '-' }}</td>
+                    <td class="docs">
+                        {% if user.bi_front_photo %}
+                        <a href="{{ url_for('admin.view_document', user_id=user.id, doc_type='bi_front') }}"
+                            target="_blank" class="doc-link">
+                            <i class="fas fa-id-card"></i> BI Frente
+                        </a>
+                        {% endif %}
+                        {% if user.bi_back_photo %}
+                        <a href="{{ url_for('admin.view_document', user_id=user.id, doc_type='bi_back') }}"
+                            target="_blank" class="doc-link">
+                            <i class="fas fa-id-card"></i> BI Verso
+                        </a>
+                        {% endif %}
+                        {% if user.property_document %}
+                        <a href="{{ url_for('admin.view_document', user_id=user.id, doc_type='property') }}"
+                            target="_blank" class="doc-link">
+                            <i class="fas fa-file-alt"></i> Documento
+                        </a>
+                        {% endif %}
+                    </td>
+                    <td class="actions">
+                        {% if user.verification_status == 'pending' %}
+                        <a href="{{ url_for('admin.review_verification', user_id=user.id) }}"
+                            class="btn btn-primary btn-sm">
+                            <i class="fas fa-search"></i> Revisar
+                        </a>
+                        {% else %}
+                        <span class="status-badge {{ user.verification_status }}">
+                            {{ 'Aprovado' if user.verification_status == 'approved' else 'Rejeitado' }}
+                        </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if users.pages > 1 %}
+        <div class="pagination">
+            {% for page in users.iter_pages() %}
+            {% if page %}
+            {% if page != users.page %}
+            <a href="{{ url_for('admin.verifications', page=page, status=current_status) }}">{{ page }}</a>
+            {% else %}
+            <span class="current">{{ page }}</span>
+            {% endif %}
+            {% else %}
+            <span>...</span>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-check-circle fa-3x"></i>
+            <h3>Nenhum pedido {{ current_status }}</h3>
+            <p>Todos os pedidos foram processados.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .admin-header {
+        margin: 2rem 0;
+    }
+
+    .filter-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .tab {
+        padding: 0.5rem 1rem;
+        background: var(--bg-secondary);
+        border-radius: 2rem;
+        text-decoration: none;
+        color: var(--text-secondary);
+        transition: all 0.2s;
+    }
+
+    .tab.active {
+        background: var(--primary);
+        color: white;
+    }
+
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--card-bg);
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .admin-table th {
+        background: var(--bg-secondary);
+        font-weight: 600;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .pending-row {
+        background: rgba(59, 130, 246, 0.05);
+    }
+
+    .docs {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .doc-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.5rem;
+        background: var(--bg-secondary);
+        border-radius: 0.5rem;
+        font-size: 0.7rem;
+        text-decoration: none;
+        color: var(--text-primary);
+    }
+
+    .doc-link:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .status-badge.approved {
+        background: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+    }
+
+    .status-badge.rejected {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin: 2rem 0;
+    }
+
+    .pagination a,
+    .pagination span {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        text-decoration: none;
+        color: var(--text-primary);
+    }
+
+    .pagination .current {
+        background: var(--primary);
+        color: white;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        background: var(--card-bg);
+        border-radius: 1rem;
+    }
+
+    .badge-landlord,
+    .badge-tenant {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.7rem;
+    }
+
+    .badge-landlord {
+        background: rgba(59, 130, 246, 0.2);
+        color: #3b82f6;
+    }
+
+    .badge-tenant {
+        background: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+    }
+</style>
+{% endblock %}

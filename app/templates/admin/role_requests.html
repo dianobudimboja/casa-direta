@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Pedidos para Senhorio - Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="admin-header">
+        <h1><i class="fas fa-user-graduate"></i> Pedidos para Senhorio</h1>
+        <div class="filter-tabs">
+            <a href="{{ url_for('admin.role_requests', status='pending') }}"
+                class="tab {% if current_status == 'pending' %}active{% endif %}">
+                Pendentes ({{ pending_count|int if pending_count else 0 }})
+            </a>
+        </div>
+    </div>
+
+    <div class="requests-list">
+        {% if users and users.items %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Utilizador</th>
+                    <th>Email</th>
+                    <th>Data do Pedido</th>
+                    <th>Justificação</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users.items %}
+                <tr>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.role_request_date.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ user.role_request_notes or 'Sem justificação' }}</td>
+                    <td class="actions">
+                        <a href="{{ url_for('admin.approve_role_request', user_id=user.id) }}"
+                            class="btn-sm btn-success"
+                            onclick="return confirm('Aprovar {{ user.name }} como senhorio?')">
+                            <i class="fas fa-check"></i> Aprovar
+                        </a>
+                        <a href="{{ url_for('admin.reject_role_request', user_id=user.id) }}" class="btn-sm btn-danger"
+                            onclick="return confirm('Rejeitar pedido de {{ user.name }}?')">
+                            <i class="fas fa-times"></i> Rejeitar
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-check-circle fa-3x"></i>
+            <h3>Nenhum pedido pendente</h3>
+            <p>Todos os pedidos foram processados.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .admin-header {
+        margin: 2rem 0;
+    }
+
+    .filter-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .tab {
+        padding: 0.5rem 1rem;
+        background: var(--bg-secondary);
+        border-radius: 2rem;
+        text-decoration: none;
+    }
+
+    .tab.active {
+        background: var(--primary);
+        color: white;
+    }
+
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--card-bg);
+        border-radius: 1rem;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        text-decoration: none;
+        display: inline-block;
+        margin: 0 0.25rem;
+    }
+
+    .btn-success {
+        background: var(--success);
+        color: white;
+    }
+
+    .btn-danger {
+        background: var(--danger);
+        color: white;
+    }
+</style>
+{% endblock %}

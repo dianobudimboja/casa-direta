@@ -1,0 +1,124 @@
+<!-- templates/dashboard/messages.html -->
+{% extends "base.html" %}
+
+{% block title %}Mensagens - Casa Direta{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-envelope"></i> Mensagens</h1>
+    </div>
+
+    {% if conversations %}
+    <div class="conversations-list">
+        {% for conv in conversations %}
+        <a href="{{ url_for('chat.conversation', other_user_id=conv.other_user.id, property_id=conv.property.id) }}"
+            class="conversation-item {% if conv.unread_count > 0 %}unread{% endif %}">
+            <div class="conversation-avatar">
+                <i class="fas fa-user-circle fa-2x"></i>
+            </div>
+            <div class="conversation-details">
+                <div class="conversation-header">
+                    <span class="conversation-name">{{ conv.other_user.name }}</span>
+                    <span class="conversation-time">{{ conv.last_message_date|time_ago }}</span>
+                </div>
+                <div class="conversation-subject">
+                    Sobre: {{ conv.property.title }}
+                </div>
+                {% if conv.unread_count > 0 %}
+                <div class="unread-badge">{{ conv.unread_count }} nova(s)</div>
+                {% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-inbox fa-3x"></i>
+        <h3>Nenhuma Mensagem</h3>
+        <p>Quando alguém enviar uma Mensagem, aparecerá aqui.</p>
+        <a href="{{ url_for('main.index') }}" class="btn btn-primary">Explorar Imóveis</a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .page-header {
+        margin: 2rem 0;
+    }
+
+    .conversations-list {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+
+    .conversation-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        text-decoration: none;
+        color: var(--text-primary);
+        border-bottom: 1px solid var(--border-color);
+        transition: background 0.2s ease;
+    }
+
+    .conversation-item:hover {
+        background: var(--bg-secondary);
+    }
+
+    .conversation-item.unread {
+        background: rgba(59, 130, 246, 0.05);
+    }
+
+    .conversation-avatar {
+        color: var(--text-muted);
+    }
+
+    .conversation-details {
+        flex: 1;
+    }
+
+    .conversation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        flex-wrap: wrap;
+        margin-bottom: 0.25rem;
+    }
+
+    .conversation-name {
+        font-weight: 600;
+    }
+
+    .conversation-time {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .conversation-subject {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+
+    .unread-badge {
+        display: inline-block;
+        background: var(--primary);
+        color: white;
+        font-size: 0.75rem;
+        padding: 0.125rem 0.5rem;
+        border-radius: 1rem;
+        margin-top: 0.25rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+    }
+</style>
+{% endblock %}

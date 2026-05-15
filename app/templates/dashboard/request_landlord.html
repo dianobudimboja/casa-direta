@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Tornar-me Senhorio - Casa Direta{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="request-container">
+        <div class="request-header">
+            <h1><i class="fas fa-building"></i> Tornar-me Senhorio</h1>
+            <p>Preencha o Formulário para Solicitar Aprovação</p>
+        </div>
+
+        <div class="request-card">
+            <div class="info-box">
+                <i class="fas fa-info-circle"></i>
+                <div>
+                    <strong>O que acontece depois do Pedido?</strong>
+                    <ul>
+                        <li>A nossa equipa analisa o seu Pedido</li>
+                        <li>Pode ser solicitada Documentação adicional</li>
+                        <li>Após a aprovação, poderá publicar Imóveis</li>
+                    </ul>
+                </div>
+            </div>
+
+            <form method="POST" class="request-form">
+                {{ form.hidden_tag() }}
+
+                <div class="form-group">
+                    <label class="form-label">{{ form.notes.label }}</label>
+                    {{ form.notes(class="form-control", rows=5, placeholder="Ex: Tenho um Imóvel no Kilamba que pretendo
+                    arrendar...") }}
+                    <small>Explique porque é que deseja tornar-se Senhorio (Opcional)</small>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Solicitar Aprovação
+                    </button>
+                    <a href="{{ url_for('dashboard.profile') }}" class="btn btn-outline">Cancelar</a>
+                </div>
+            </form>
+
+            <div class="info-box warning">
+                <i class="fas fa-shield-alt"></i>
+                <div>
+                    <strong>Importante Saber:</strong>
+                    <ul>
+                        <li>Publicar anúncios falsos pode resultar em Suspensão</li>
+                        <li>Preços abusivos podem ser sinalizados</li>
+                        <li>Seja transparente com os seus Inquilinos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .request-container {
+        max-width: 700px;
+        margin: 2rem auto;
+    }
+
+    .request-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .info-box {
+        background: rgba(59, 130, 246, 0.1);
+        border-left: 3px solid var(--primary);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .info-box i {
+        font-size: 1.5rem;
+        color: var(--primary);
+    }
+
+    .info-box.warning {
+        background: rgba(245, 158, 11, 0.1);
+        border-left-color: var(--warning);
+    }
+
+    .info-box.warning i {
+        color: var(--warning);
+    }
+
+    .info-box ul {
+        margin: 0.5rem 0 0 1rem;
+        font-size: 0.875rem;
+    }
+
+    .request-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+</style>
+{% endblock %}

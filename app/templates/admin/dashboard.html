@@ -1,0 +1,389 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Casa Direta{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="admin-header">
+        <h1><i class="fas fa-shield-alt"></i> Painel Administrativo</h1>
+        <p>Gerencie utilizadores, imóveis e verificações</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="admin-stats">
+        <div class="stat-card">
+            <div class="stat-icon blue">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.total_users }}</h3>
+                <p>Total de Utilizadores</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i class="fas fa-home"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.total_properties }}</h3>
+                <p>Total de Imóveis</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon yellow">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.pending_verifications }}</h3>
+                <p>Verificações Pendentes</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon red">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.suspicious_properties }}</h3>
+                <p>Imóveis Suspeitos</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon purple">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.total_reviews }}</h3>
+                <p>Avaliações</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon orange">
+                <i class="fas fa-flag"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.reported_properties }}</h3>
+                <p>Denúncias</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="admin-actions">
+        <h2><i class="fas fa-bolt"></i> Ações Rápidas</h2>
+        <div class="action-buttons">
+            <a href="{{ url_for('admin.users') }}" class="btn btn-outline">
+                <i class="fas fa-users"></i> Gerir Utilizadores
+            </a>
+            <a href="{{ url_for('admin.properties') }}?filter=pending" class="btn btn-outline">
+                <i class="fas fa-check-circle"></i> Verificar Imóveis
+            </a>
+            <a href="{{ url_for('admin.properties') }}?filter=suspicious" class="btn btn-outline">
+                <i class="fas fa-exclamation-triangle"></i> Revisar Suspeitos
+            </a>
+            <a href="{{ url_for('admin.verifications') }}" class="btn btn-primary">
+                <i class="fas fa-id-card"></i> Verificações Pendentes
+                {% if stats.pending_verifications > 0 %}
+                <span class="badge">{{ stats.pending_verifications }}</span>
+                {% endif %}
+            </a>
+            <a href="{{ url_for('reports.admin_reports', status='pending') }}" class="btn btn-outline">
+                <i class="fas fa-flag"></i> Ver Denúncias
+                {% if stats.pending_reports > 0 %}
+                <span class="badge">{{ stats.pending_reports }}</span>
+                {% endif %}
+            </a>
+            <a href="{{ url_for('admin.role_requests') }}" class="btn btn-outline">
+                <i class="fas fa-user-graduate"></i> Pedidos para Senhorio
+                {% if stats.pending_role_requests > 0 %}
+                <span class="badge">{{ stats.pending_role_requests }}</span>
+                {% endif %}
+            </a>
+        </div>
+    </div>
+
+    <div class="admin-grid">
+        <!-- Card de Verificações Pendentes -->
+        <div class="admin-card">
+            <div class="card-header">
+                <h3><i class="fas fa-id-card"></i> Verificações Pendentes</h3>
+                <a href="{{ url_for('admin.verifications') }}" class="btn-link">Ver todos →</a>
+            </div>
+            <div class="card-body">
+                {% if pending_verifications %}
+                {% for user in pending_verifications %}
+                <div class="pending-item">
+                    <div>
+                        <strong>{{ user.name }}</strong><br>
+                        <small>{{ user.email }}</small>
+                    </div>
+                    <a href="{{ url_for('admin.review_verification', user_id=user.id) }}" class="btn-sm btn-primary">
+                        Revisar
+                    </a>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="empty-state">Nenhuma verificação pendente</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Suspicious Properties -->
+        <div class="admin-card">
+            <div class="card-header">
+                <h3><i class="fas fa-exclamation-triangle"></i> Imóveis Suspeitos</h3>
+                <a href="{{ url_for('admin.properties') }}?filter=suspicious" class="btn-link">Ver todos →</a>
+            </div>
+            <div class="card-body">
+                {% if suspicious_properties %}
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Imóvel</th>
+                            <th>Score</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for prop in suspicious_properties[:5] %}
+                        <tr>
+                            <td>{{ prop.title }}<br><small>{{ prop.location }}</small></td>
+                            <td><span class="suspicion-badge">{{ prop.suspicion_score }}%</span></td>
+                            <td>
+                                <a href="{{ url_for('admin.verify_property', property_id=prop.id) }}"
+                                    class="btn-sm btn-success">Aprovar</a>
+                                <a href="{{ url_for('admin.delete_property', property_id=prop.id) }}"
+                                    class="btn-sm btn-danger"
+                                    onclick="return confirm('Remover este imóvel?')">Remover</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="empty-state">Nenhum imóvel suspeito</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent Users -->
+        <div class="admin-card">
+            <div class="card-header">
+                <h3><i class="fas fa-user-plus"></i> Últimos Utilizadores</h3>
+                <a href="{{ url_for('admin.users') }}" class="btn-link">Ver todos →</a>
+            </div>
+            <div class="card-body">
+                {% if recent_users %}
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Utilizador</th>
+                            <th>Tipo</th>
+                            <th>Verificado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in recent_users[:5] %}
+                        <tr>
+                            <td>{{ user.name }}</td>
+                            <td>{% if user.is_landlord %}🏢 Senhorio{% else %}👤 Inquilino{% endif %}</td>
+                            <td>{% if user.is_verified %}✅ Sim{% else %}❌ Não{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .admin-header {
+        margin: 2rem 0;
+        text-align: center;
+    }
+
+    .admin-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .admin-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .stat-icon.blue {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+    }
+
+    .stat-icon.green {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+    }
+
+    .stat-icon.yellow {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+    }
+
+    .stat-icon.red {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+
+    .stat-icon.purple {
+        background: rgba(139, 92, 246, 0.1);
+        color: #8b5cf6;
+    }
+
+    .stat-icon.orange {
+        background: rgba(249, 115, 22, 0.1);
+        color: #f97316;
+    }
+
+    .stat-info h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-info p {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .admin-actions {
+        background: var(--bg-secondary);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .admin-actions h2 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .admin-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .admin-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .card-header h3 {
+        margin: 0;
+        font-size: 1rem;
+    }
+
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .admin-table th {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    .suspicion-badge {
+        background: var(--danger);
+        color: white;
+        padding: 0.125rem 0.5rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        border-radius: 0.25rem;
+        text-decoration: none;
+        display: inline-block;
+        margin: 0 0.125rem;
+    }
+
+    .btn-success {
+        background: var(--success);
+        color: white;
+    }
+
+    .btn-danger {
+        background: var(--danger);
+        color: white;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-muted);
+    }
+
+    @media (max-width: 768px) {
+        .admin-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .admin-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+{% endblock %}

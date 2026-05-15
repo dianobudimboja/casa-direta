@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}Criar Contrato - {{ property.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="contract-header">
+        <h1><i class="fas fa-file-signature"></i> Contrato de Arrendamento</h1>
+        <p>Preencha os dados para gerar o contrato do imóvel <strong>{{ property.title }}</strong></p>
+    </div>
+
+    <div class="contract-grid">
+        <div class="contract-form-container">
+            <form method="POST" class="contract-form">
+                {{ form.hidden_tag() }}
+
+                <div class="form-section">
+                    <h2><i class="fas fa-user"></i> Dados do Inquilino</h2>
+
+                    <!-- Dentro do formulário, o campo tenant_name deve estar assim -->
+                    <div class="form-group">
+                        <label class="form-label">{{ form.tenant_name.label }}</label>
+                        {{ form.tenant_name(class="form-control", placeholder="Nome Completo do Inquilino",
+                        id="tenant_name") }}
+                        {% for error in form.tenant_name.errors %}
+                        <small class="error-text">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label class="form-label">{{ form.tenant_bi.label }}</label>
+                            {{ form.tenant_bi(class="form-control", placeholder="000000000A") }}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">{{ form.tenant_phone.label }}</label>
+                            {{ form.tenant_phone(class="form-control", placeholder="923456789") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2><i class="fas fa-calendar-alt"></i> Condições do Contrato</h2>
+
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label class="form-label">{{ form.start_date.label }}</label>
+                            {{ form.start_date(class="form-control", type="date") }}
+                            {% for error in form.start_date.errors %}
+                            <small class="error-text">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">{{ form.end_date.label }}</label>
+                            {{ form.end_date(class="form-control", type="date") }}
+                            {% for error in form.end_date.errors %}
+                            <small class="error-text">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label class="form-label">{{ form.payment_day.label }}</label>
+                            {{ form.payment_day(class="form-control", type="number", placeholder="5") }}
+                            <small>Dia do mês para pagamento da renda</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">{{ form.security_deposit.label }}</label>
+                            {{ form.security_deposit(class="form-control", type="number", placeholder="0") }}
+                            <small>Valor da caução (tipicamente 1-2 meses de renda)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2><i class="fas fa-file-alt"></i> Cláusulas Adicionais</h2>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.additional_clauses.label }}</label>
+                        {{ form.additional_clauses(class="form-control", rows=6, placeholder="Ex: Condomínio incluído?
+                        Animais permitidos? etc.") }}
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-file-pdf"></i> Gerar Contrato PDF
+                    </button>
+                    <a href="{{ url_for('main.property_detail', property_id=property.id) }}" class="btn btn-outline">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="contract-info">
+            <div class="info-card">
+                <h3><i class="fas fa-home"></i> Imóvel</h3>
+                <p><strong>{{ property.title }}</strong></p>
+                <p>{{ property.location }}</p>
+                <p class="price">{{ property.price|format_price }}/mês</p>
+            </div>
+
+            <div class="info-card">
+                <h3><i class="fas fa-building"></i> Senhorio</h3>
+                <p><strong>{{ current_user.name }}</strong></p>
+                <p>{{ current_user.phone or 'Telefone não informado' }}</p>
+                {% if current_user.is_verified %}
+                <span class="verified"><i class="fas fa-check-circle"></i> Identidade verificada</span>
+                {% endif %}
+            </div>
+
+            <div class="info-card warning-card">
+                <h3><i class="fas fa-gavel"></i> Notas Importantes</h3>
+                <ul>
+                    <li>Este Contrato tem valor legal</li>
+                    <li>Ambas as partes devem assinar</li>
+                    <li>Guarde uma cópia para si</li>
+                    <li>O Contrato é gerado em PDF</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .contract-header {
+        margin: 2rem 0;
+        text-align: center;
+    }
+
+    .contract-grid {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .contract-form-container {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1.5rem;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .form-section h2 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-row-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .info-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .warning-card {
+        background: rgba(245, 158, 11, 0.1);
+        border-color: var(--warning);
+    }
+
+    .price {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .verified {
+        color: var(--success);
+        font-size: 0.75rem;
+    }
+
+    @media (max-width: 768px) {
+        .contract-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-row-2 {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Política de Privacidade - Casa Direta{% endblock %}
+
+{% block content %}
+<div class="legal-container">
+    <div class="legal-header">
+        <h1><i class="fas fa-lock"></i> Política de Privacidade</h1>
+        <p>Última atualização: 10 de maio de 2026</p>
+    </div>
+
+    <div class="legal-content">
+        <section>
+            <h2>1. Introdução</h2>
+            <p>A Casa Direta valoriza a sua privacidade. Esta Política explica como recolhemos, utilizamos, partilhamos
+                e protegemos as suas informações pessoais, em conformidade com a Lei de Proteção de Dados de Angola e o
+                Regulamento Geral de Proteção de Dados (RGPD).</p>
+        </section>
+
+        <section>
+            <h2>2. Dados que Recolhemos</h2>
+            <p><strong>Dados de Registo:</strong> Nome, email, telefone, tipo de utilizador (senhorio/inquilino).</p>
+            <p><strong>Dados de Verificação:</strong> Imagem do Bilhete de Identidade, comprovativo de propriedade (para
+                senhorios).</p>
+            <p><strong>Dados de Utilização:</strong> Imóveis visualizados, pesquisas, mensagens enviadas, favoritos.</p>
+            <p><strong>Dados Técnicos:</strong> Endereço IP, tipo de navegador, dispositivo, páginas visitadas.</p>
+        </section>
+
+        <section>
+            <h2>3. Como Utilizamos os Seus Dados</h2>
+            <ul>
+                <li>✅ Fornecer e melhorar os nossos serviços.</li>
+                <li>✅ Verificar a identidade dos utilizadores.</li>
+                <li>✅ Processar pagamentos (quando aplicável).</li>
+                <li>✅ Enviar notificações sobre mensagens e contratos.</li>
+                <li>✅ Detetar e prevenir fraudes.</li>
+                <li>✅ Cumprir obrigações legais.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>4. Base Legal para o Tratamento de Dados</h2>
+            <p>Tratamos os seus dados com base no:</p>
+            <ul>
+                <li><strong>Consentimento:</strong> Quando aceita a nossa Política de Privacidade.</li>
+                <li><strong>Execução de contrato:</strong> Para prestar os serviços solicitados.</li>
+                <li><strong>Interesse legítimo:</strong> Para melhorar a plataforma e prevenir fraudes.</li>
+                <li><strong>Obrigação legal:</strong> Para cumprir a legislação aplicável.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>5. Partilha de Dados com Terceiros</h2>
+            <p>Não vendemos nem alugamos os seus dados. Podemos partilhar dados com:</p>
+            <ul>
+                <li><strong>Fornecedores de serviços:</strong> Hospedagem, email, pagamentos (apenas o necessário).</li>
+                <li><strong>Autoridades legais:</strong> Quando exigido por lei ou para proteger os nossos direitos.
+                </li>
+                <li><strong>Outros utilizadores:</strong> O seu nome, avaliação e data de registo são visíveis
+                    publicamente.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>6. Seus Direitos</h2>
+            <p>Ao abrigo da legislação aplicável, tem direito a:</p>
+            <ul>
+                <li>🔹 <strong>Acesso:</strong> Saber quais dados temos sobre si.</li>
+                <li>🔹 <strong>Retificação:</strong> Corrigir dados incorretos.</li>
+                <li>🔹 <strong>Apagamento:</strong> Solicitar a eliminação dos seus dados ("direito ao esquecimento").
+                </li>
+                <li>🔹 <strong>Limitação:</strong> Restringir o tratamento dos seus dados.</li>
+                <li>🔹 <strong>Portabilidade:</strong> Receber os seus dados num formato estruturado.</li>
+                <li>🔹 <strong>Oposição:</strong> Opor-se ao tratamento para determinadas finalidades.</li>
+            </ul>
+            <p>Para exercer estes direitos, contacte-nos através de <strong>dados@casadireta.com</strong>.</p>
+        </section>
+
+        <section>
+            <h2>7. Retenção de Dados</h2>
+            <p>Conservamos os seus dados enquanto a sua conta estiver ativa. Após o cancelamento, os dados são mantidos
+                por 5 anos para cumprimento de obrigações legais (ex: contratos). Os documentos de verificação são
+                eliminados 30 dias após o cancelamento da conta.</p>
+        </section>
+
+        <section>
+            <h2>8. Segurança dos Dados</h2>
+            <p>Implementamos medidas de segurança técnicas e organizacionais para proteger os seus dados contra acesso
+                não autorizado, perda ou destruição, incluindo:</p>
+            <ul>
+                <li>🔒 Encriptação de senhas (hash com bcrypt).</li>
+                <li>🔒 Conexões HTTPS (SSL/TLS).</li>
+                <li>🔒 Acesso restrito a dados sensíveis.</li>
+                <li>🔒 Backups regulares da base de dados.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>9. Cookies</h2>
+            <p>Utilizamos cookies para melhorar a sua experiência. Consulte a nossa <a
+                    href="{{ url_for('main.cookies') }}">Política de Cookies</a> para mais informações.</p>
+        </section>
+
+        <section>
+            <h2>10. Privacidade de Menores</h2>
+            <p>A Casa Direta não se destina a menores de 18 anos. Não recolhemos conscientemente dados de menores. Se
+                tomar conhecimento de que um menor nos forneceu dados, contacte-nos para os removermos.</p>
+        </section>
+
+        <section>
+            <h2>11. Transferências Internacionais</h2>
+            <p>Os seus dados podem ser armazenados em servidores localizados fora de Angola. Garantimos que essas
+                transferências cumprem a legislação aplicável, utilizando cláusulas contratuais padrão da União
+                Europeia.</p>
+        </section>
+
+        <section>
+            <h2>12. Alterações a esta Política</h2>
+            <p>Podemos atualizar esta Política periodicamente. Notificaremos os utilizadores sobre alterações
+                significativas por email ou através de um aviso na plataforma.</p>
+        </section>
+
+        <section>
+            <h2>13. Contacto do Encarregado de Proteção de Dados</h2>
+            <p>Se tiver dúvidas sobre o tratamento dos seus dados, contacte o nosso Encarregado de Proteção de Dados
+                (DPO):</p>
+            <p><strong>Email:</strong> <a href="mailto:cientificando17@gmail.com">cientificando17@gmail.com</a><br>
+                <strong>Morada:</strong> Luanda, Angola
+            </p>
+        </section>
+
+        <div class="legal-footer">
+            <p>📧 Para qualquer questão relacionada com privacidade, escreva para <strong>cientificando17@gmail.com</strong>
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .legal-container {
+        max-width: 900px;
+        margin: 2rem auto;
+    }
+
+    .legal-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .legal-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .legal-header p {
+        color: var(--text-muted);
+    }
+
+    .legal-content {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 2rem;
+    }
+
+    .legal-content section {
+        margin-bottom: 2rem;
+    }
+
+    .legal-content h2 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        color: var(--primary);
+        border-left: 3px solid var(--primary);
+        padding-left: 0.75rem;
+    }
+
+    .legal-content p {
+        margin-bottom: 0.75rem;
+        line-height: 1.6;
+    }
+
+    .legal-content ul {
+        margin: 0.75rem 0 0.75rem 1.5rem;
+    }
+
+    .legal-content li {
+        margin-bottom: 0.5rem;
+        line-height: 1.5;
+    }
+
+    .legal-footer {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+        text-align: center;
+        background: var(--bg-secondary);
+        border-radius: 0.5rem;
+        padding: 1rem;
+    }
+</style>
+{% endblock %}

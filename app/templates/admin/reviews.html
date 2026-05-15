@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Moderar Avaliações - Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="admin-header">
+        <h1><i class="fas fa-star"></i> Moderação de Avaliações</h1>
+    </div>
+
+    <div class="reviews-list">
+        {% if reviews.items %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Avaliador</th>
+                    <th>Avaliado</th>
+                    <th>Classificação</th>
+                    <th>Comentário</th>
+                    <th>Data</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for review in reviews.items %}
+                <tr>
+                    <td>#{{ review.id }}</td>
+                    <td>{{ review.reviewer.name if review.reviewer else '-' }}</td>
+                    <td>{{ review.reviewed.name if review.reviewed else '-' }}</td>
+                    <td>
+                        <div class="review-rating">
+                            {% for i in range(5) %}
+                            {% if i < review.rating %} <i class="fas fa-star"></i>
+                                {% else %}
+                                <i class="far fa-star"></i>
+                                {% endif %}
+                                {% endfor %}
+                        </div>
+                    </td>
+                    <td>{{ review.comment|truncate(50) if review.comment else '-' }}</td>
+                    <td>{{ review.created_at.strftime('%d/%m/%Y') }}</td>
+                    <td>
+                        {% if review.is_visible %}
+                        <span class="badge-visible">Visível</span>
+                        {% else %}
+                        <span class="badge-hidden">Oculto</span>
+                        {% endif %}
+                    </td>
+                    <td class="actions">
+                        {% if review.is_visible %}
+                        <a href="{{ url_for('reviews.hide_review', review_id=review.id) }}" class="action-btn danger"
+                            title="Ocultar" onclick="return confirm('Ocultar esta avaliação?')">
+                            <i class="fas fa-eye-slash"></i>
+                        </a>
+                        {% else %}
+                        <span class="text-muted">Ocultado</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if reviews.pages > 1 %}
+        <div class="pagination">
+            {% for page in reviews.iter_pages() %}
+            {% if page %}
+            {% if page != reviews.page %}
+            <a href="{{ url_for('admin.reviews', page=page) }}">{{ page }}</a>
+            {% else %}
+            <span class="current">{{ page }}</span>
+            {% endif %}
+            {% else %}
+            <span>...</span>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-star fa-3x"></i>
+            <h3>Nenhuma avaliação encontrada</h3>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .review-rating {
+        color: #fbbf24;
+        font-size: 0.7rem;
+        white-space: nowrap;
+    }
+
+    .badge-visible {
+        background: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.7rem;
+    }
+
+    .badge-hidden {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.7rem;
+    }
+
+    .action-btn.danger:hover {
+        background: var(--danger);
+        color: white;
+    }
+</style>
+{% endblock %}

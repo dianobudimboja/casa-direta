@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}Gestão de Denúncias - Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="admin-header">
+        <h1><i class="fas fa-flag"></i> Gestão de Denúncias</h1>
+        <div class="filter-tabs">
+            <a href="{{ url_for('reports.admin_reports', status='pending') }}"
+                class="tab {% if current_status == 'pending' %}active{% endif %}">
+                Pendentes ({{ pending_count|int if pending_count else 0 }})
+            </a>
+            <a href="{{ url_for('reports.admin_reports', status='approved') }}"
+                class="tab {% if current_status == 'approved' %}active{% endif %}">
+                Aprovadas ({{ approved_count|int if approved_count else 0 }})
+            </a>
+            <a href="{{ url_for('reports.admin_reports', status='rejected') }}"
+                class="tab {% if current_status == 'rejected' %}active{% endif %}">
+                Rejeitadas ({{ rejected_count|int if rejected_count else 0 }})
+            </a>
+        </div>
+    </div>
+
+    <div class="reports-list">
+        {% if reports and reports.items %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Denunciante</th>
+                    <th>Imóvel</th>
+                    <th>Motivo</th>
+                    <th>Data</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in reports.items %}
+                <tr class="{% if report.status == 'pending' %}pending-row{% endif %}">
+                    <td data-label="ID">#{{ report.id }}</td>
+                    <td data-label="Denunciante">{{ report.reporter.name }}</td>
+                    <td data-label="Imóvel">
+                        <strong>{{ report.property.title }}</strong><br>
+                        <small>{{ report.property.location }}</small>
+                    </td>
+                    <td data-label="Motivo">
+                        <span class="reason-badge">{{ report.reason }}</span>
+                        {% if report.description %}
+                        <div class="reason-description">{{ report.description[:100] }}{% if report.description|length >
+                            100 %}...{% endif %}</div>
+                        {% endif %}
+                    </td>
+                    <td data-label="Data">{{ report.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td data-label="Status">
+                        {% if report.status == 'pending' %}
+                        <span class="badge-pending">Pendente</span>
+                        {% elif report.status == 'approved' %}
+                        <span class="badge-approved">Aprovada</span>
+                        {% else %}
+                        <span class="badge-rejected">Rejeitada</span>
+                        {% endif %}
+                    </td>
+                    <td data-label="Ações" class="actions">
+                        {% if report.status == 'pending' %}
+                        <form method="POST" action="{{ url_for('reports.process_report', report_id=report.id) }}"
+                            class="inline-form">
+                            <input type="hidden" name="action" value="approve">
+                            <textarea name="admin_notes" placeholder="Notas (opcional)" rows="2"
+                                style="width: 100%; margin-bottom: 5px; font-size: 0.7rem;"></textarea>
+                            <button type="submit" class="btn-sm btn-danger"
+                                onclick="return confirm('Remover o imóvel e confirmar a denúncia?')">
+                                <i class="fas fa-trash"></i> Aprovar
+                            </button>
+                        </form>
+                        <form method="POST" action="{{ url_for('reports.process_report', report_id=report.id) }}"
+                            class="inline-form">
+                            <input type="hidden" name="action" value="reject">
+                            <textarea name="admin_notes" placeholder="Notas (opcional)" rows="2"
+                                style="width: 100%; margin-bottom: 5px; font-size: 0.7rem;"></textarea>
+                            <button type="submit" class="btn-sm btn-success"
+                                onclick="return confirm('Rejeitar esta denúncia?')">
+                                <i class="fas fa-times"></i> Rejeitar
+                            </button>
+                        </form>
+                        {% else %}
+                        <span class="processed-by">
+                            Por: {{ report.admin.name if report.admin else 'Sistema' }}<br>
+                            {{ report.processed_at.strftime('%d/%m/%Y') if report.processed_at else '-' }}
+                        </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if reports.pages > 1 %}
+        <div class="pagination">
+            {% for page in reports.iter_pages() %}
+            {% if page %}
+            {% if page != reports.page %}
+            <a href="{{ url_for('reports.admin_reports', page=page, status=current_status) }}">{{ page }}</a>
+            {% else %}
+            <span class="current">{{ page }}</span>
+            {% endif %}
+            {% else %}
+            <span>...</span>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-flag fa-3x"></i>
+            <h3>Nenhuma denúncia {{ current_status }}</h3>
+            <p>Não existem denúncias com o status selecionado.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .admin-header {
+        margin: 2rem 0;
+    }
+
+    .filter-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .tab {
+        padding: 0.5rem 1rem;
+        background: var(--bg-secondary);
+        border-radius: 2rem;
+        text-decoration: none;
+        color: var(--text-secondary);
+    }
+
+    .tab.active {
+        background: var(--primary);
+        color: white;
+    }
+
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--card-bg);
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .pending-row {
+        background: rgba(245, 158, 11, 0.05);
+    }
+
+    .reason-badge {
+        display: inline-block;
+        padding: 0.125rem 0.5rem;
+        background: var(--bg-secondary);
+        border-radius: 0.5rem;
+        font-size: 0.7rem;
+    }
+
+    .reason-description {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        margin-top: 0.25rem;
+    }
+
+    .badge-pending {
+        background: rgba(245, 158, 11, 0.2);
+        color: #f59e0b;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.7rem;
+    }
+
+    .badge-approved {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.7rem;
+    }
+
+    .badge-rejected {
+        background: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.7rem;
+    }
+
+    .actions {
+        min-width: 220px;
+    }
+
+    .inline-form {
+        margin-bottom: 0.5rem;
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.7rem;
+        border-radius: 0.25rem;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-danger {
+        background: var(--danger);
+        color: white;
+    }
+
+    .btn-success {
+        background: var(--success);
+        color: white;
+    }
+
+    .processed-by {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-muted);
+    }
+</style>
+{% endblock %}

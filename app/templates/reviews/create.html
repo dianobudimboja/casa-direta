@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block title %}Avaliar {{ reviewed_user.name }} - Casa Direta{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="review-container">
+        <div class="review-header">
+            <h1><i class="fas fa-star"></i> Avaliar {{ reviewed_user.name }}</h1>
+            <p>Sua opinião ajuda outros utilizadores a confiar</p>
+        </div>
+
+        <div class="review-card">
+            <div class="review-target">
+                <div class="target-avatar">
+                    <i class="fas fa-user-circle fa-3x"></i>
+                </div>
+                <div class="target-info">
+                    <h3>{{ reviewed_user.name }}</h3>
+                    <div class="target-badge">
+                        {% if reviewed_user.is_verified %}
+                            <span class="verified"><i class="fas fa-check-circle"></i> Verificado</span>
+                        {% endif %}
+                        {% if reviewed_user.is_landlord %}
+                            <span class="landlord">🏢 Senhorio</span>
+                        {% else %}
+                            <span class="tenant">👤 Inquilino</span>
+                        {% endif %}
+                    </div>
+                    {% if property %}
+                        <div class="target-property">
+                            <i class="fas fa-home"></i> Imóvel: {{ property.title }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <form method="POST" class="review-form">
+                {{ form.hidden_tag() }}
+
+                <div class="rating-section">
+                    <label class="form-label">Classificação</label>
+                    <div class="star-rating">
+                        <input type="radio" name="rating" value="5" id="star5" {% if form.rating.data == 5 %}checked{% endif %}>
+                        <label for="star5"><i class="fas fa-star"></i></label>
+                        <input type="radio" name="rating" value="4" id="star4" {% if form.rating.data == 4 %}checked{% endif %}>
+                        <label for="star4"><i class="fas fa-star"></i></label>
+                        <input type="radio" name="rating" value="3" id="star3" {% if form.rating.data == 3 %}checked{% endif %}>
+                        <label for="star3"><i class="fas fa-star"></i></label>
+                        <input type="radio" name="rating" value="2" id="star2" {% if form.rating.data == 2 %}checked{% endif %}>
+                        <label for="star2"><i class="fas fa-star"></i></label>
+                        <input type="radio" name="rating" value="1" id="star1" {% if form.rating.data == 1 %}checked{% endif %}>
+                        <label for="star1"><i class="fas fa-star"></i></label>
+                    </div>
+                    {% for error in form.rating.errors %}
+                        <small class="error-text">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <div class="comment-section">
+                    <label class="form-label">Comentário (opcional)</label>
+                    {{ form.comment(class="form-control", rows=5, placeholder="Conte sobre a sua Experiência...") }}
+                    <small>Máximo 500 caracteres</small>
+                    {% for error in form.comment.errors %}
+                        <small class="error-text">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Publicar Avaliação
+                    </button>
+                    <a href="{{ url_for('dashboard.profile', user_id=reviewed_user.id) }}" class="btn btn-outline">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="review-tips">
+            <h3><i class="fas fa-lightbulb"></i> Dicas para uma boa avaliação</h3>
+            <ul>
+                <li>Seja honesto e respeitoso</li>
+                <li>Descreva a sua experiência real</li>
+                <li>Mencione pontos positivos e negativos</li>
+                <li>Evite informações pessoais sensíveis</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+    .review-container {
+        max-width: 700px;
+        margin: 2rem auto;
+    }
+
+    .review-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .review-header h1 {
+        margin-bottom: 0.5rem;
+    }
+
+    .review-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 2rem;
+    }
+
+    .review-target {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--bg-secondary);
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .target-avatar {
+        color: var(--primary);
+    }
+
+    .target-info h3 {
+        margin-bottom: 0.25rem;
+    }
+
+    .target-badge {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .target-property {
+        margin-top: 0.5rem;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .verified {
+        color: var(--success);
+        font-size: 0.75rem;
+    }
+
+    .landlord, .tenant {
+        font-size: 0.75rem;
+    }
+
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 0.25rem;
+    }
+
+    .star-rating input {
+        display: none;
+    }
+
+    .star-rating label {
+        font-size: 2rem;
+        color: #cbd5e1;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    .star-rating label:hover,
+    .star-rating label:hover ~ label,
+    .star-rating input:checked ~ label {
+        color: #fbbf24;
+    }
+
+    .comment-section {
+        margin-top: 1.5rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .review-tips {
+        background: var(--bg-secondary);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .review-tips h3 {
+        margin-bottom: 1rem;
+    }
+
+    .review-tips ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .review-tips li {
+        padding: 0.25rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .review-tips li::before {
+        content: "✓";
+        color: var(--success);
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .error-text {
+        color: var(--danger);
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+</style>
+
+<script>
+    // Star rating interaction
+    document.querySelectorAll('.star-rating label').forEach(star => {
+        star.addEventListener('click', function() {
+            const input = this.previousElementSibling;
+            if (input && input.type === 'radio') {
+                input.checked = true;
+            }
+        });
+    });
+</script>
+{% endblock %}

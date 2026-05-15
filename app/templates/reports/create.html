@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Denunciar Anúncio - Casa Direta{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="report-container">
+        <div class="report-header">
+            <h1><i class="fas fa-flag"></i> Denunciar Anúncio</h1>
+            <p>Ajude-nos a manter a Plataforma Segura</p>
+        </div>
+
+        <div class="report-card">
+            <div class="reported-property">
+                <h3>Anúncio a denunciar</h3>
+                <p><strong>{{ property.title }}</strong></p>
+                <p>{{ property.location }}</p>
+                <p>Senhorio: {{ property.owner.name }}</p>
+            </div>
+
+            <form method="POST" class="report-form">
+                {{ form.hidden_tag() }}
+
+                <div class="form-group">
+                    <label class="form-label">{{ form.reason.label }}</label>
+                    {{ form.reason(class="form-control") }}
+                    {% for error in form.reason.errors %}
+                    <small class="error-text">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">{{ form.description.label }}</label>
+                    {{ form.description(class="form-control", rows=5, placeholder="Descreva detalhadamente o motivo da
+                    denúncia...") }}
+                    <small>Máximo 500 caracteres</small>
+                    {% for error in form.description.errors %}
+                    <small class="error-text">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <div class="form-warning">
+                    <i class="fas fa-gavel"></i>
+                    <p>Denúncias falsas podem resultar na suspensão da sua Conta. Seja Honesto.</p>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-flag"></i> Enviar Denúncia
+                    </button>
+                    <a href="{{ url_for('main.property_detail', property_id=property.id) }}" class="btn btn-outline">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .report-container {
+        max-width: 700px;
+        margin: 2rem auto;
+    }
+
+    .report-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .report-header h1 {
+        font-size: 1.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .report-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 2rem;
+    }
+
+    .reported-property {
+        background: var(--bg-secondary);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        border-left: 3px solid var(--danger);
+    }
+
+    .reported-property h3 {
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--text-muted);
+    }
+
+    .reported-property p {
+        margin-bottom: 0.25rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .form-warning {
+        background: rgba(239, 68, 68, 0.1);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 1.5rem 0;
+    }
+
+    .form-warning i {
+        font-size: 1.25rem;
+        color: var(--danger);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .btn-danger {
+        background: var(--danger);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-danger:hover {
+        opacity: 0.9;
+    }
+</style>
+{% endblock %}

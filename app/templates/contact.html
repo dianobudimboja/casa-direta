@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}Contacto - Casa Direta{% endblock %}
+
+{% block content %}
+<div class="contact-container">
+    <div class="contact-header">
+        <h1><i class="fas fa-headset"></i> Contacte-nos</h1>
+        <p>Estamos aqui para ajudá-lo. Escolha o canal mais conveniente para si.</p>
+    </div>
+
+    <div class="contact-grid">
+        <div class="contact-info">
+            <div class="info-card">
+                <i class="fas fa-envelope"></i>
+                <h3>Email</h3>
+                <p><a href="mailto:cientificando17@gmail.com">cientificando17@gmail.com</a></p>
+                <p><small>Resposta em até 24 horas ou 72 horas úteis</small></p>
+            </div>
+
+            <div class="info-card">
+                <i class="fab fa-whatsapp"></i>
+                <h3>WhatsApp</h3>
+                <p><a href="https://wa.me/244936069611">+244 936 069 611</a></p>
+                <p><small>Segunda a Sexta, 9h às 18h</small></p>
+            </div>
+
+            <div class="info-card">
+                <i class="fas fa-phone-alt"></i>
+                <h3>Telefone</h3>
+                <p>+244 936 069 611</p>
+                <p><small>Chamadas para Rede Móvel</small></p>
+            </div>
+
+            <div class="info-card">
+                <i class="fas fa-map-marker-alt"></i>
+                <h3>Morada</h3>
+                <p>Luanda, Angola</p>
+                <p><small>Atendimento apenas por Agendamento</small></p>
+            </div>
+        </div>
+
+        <div class="contact-form-container">
+            <h2><i class="fas fa-paper-plane"></i> Envie-nos uma Mensagem</h2>
+            <form method="POST" class="contact-form">
+                <div class="form-group">
+                    <label class="form-label">Nome Completo</label>
+                    {% if current_user.is_authenticated %}
+                    <input type="text" class="form-control" value="{{ current_user.name }}" readonly disabled>
+                    {% else %}
+                    <input type="text" class="form-control" name="name" required placeholder="O seu nome">
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    {% if current_user.is_authenticated %}
+                    <input type="email" class="form-control" value="{{ current_user.email }}" readonly disabled>
+                    {% else %}
+                    <input type="email" class="form-control" name="email" required placeholder="seu_email@gmail.com">
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Assunto</label>
+                    <select class="form-control" name="subject" required>
+                        <option value="">Selecione o Assunto</option>
+                        <option value="duvida">Dúvida sobre a plataforma</option>
+                        <option value="problema">Problema Técnico</option>
+                        <option value="denuncia">Denunciar Anúncio Suspeito</option>
+                        <option value="sugestao">Sugestão de Melhoria</option>
+                        <option value="parceria">Parceria Comercial</option>
+                        <option value="outro">Outro Assunto</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Mensagem</label>
+                    <textarea class="form-control" name="message" rows="5" required
+                        placeholder="Descreva a sua questão em detalhe..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-paper-plane"></i> Enviar Mensagem
+                </button>
+            </form>
+            <p class="form-note"><i class="fas fa-lock"></i> A sua Mensagem é enviada de forma segura e será respondida
+                por Email.</p>
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <h2><i class="fas fa-question-circle"></i> Perguntas Frequentes</h2>
+        <div class="faq-links">
+            <a href="{{ url_for('main.faq') }}" class="faq-link">
+                <i class="fas fa-arrow-right"></i> Ver todas as Perguntas Frequentes
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .contact-container {
+        max-width: 1100px;
+        margin: 2rem auto;
+    }
+
+    .contact-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .contact-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .contact-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .contact-info {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .info-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        text-align: center;
+        transition: transform 0.2s;
+    }
+
+    .info-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .info-card i {
+        font-size: 2rem;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .info-card h3 {
+        margin-bottom: 0.5rem;
+    }
+
+    .info-card p {
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .info-card a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .contact-form-container {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1.5rem;
+    }
+
+    .contact-form-container h2 {
+        margin-bottom: 1.5rem;
+        font-size: 1.25rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .btn-block {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .form-note {
+        text-align: center;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 1rem;
+    }
+
+    .faq-section {
+        text-align: center;
+        padding: 2rem;
+        background: var(--bg-secondary);
+        border-radius: 1rem;
+    }
+
+    .faq-section h2 {
+        margin-bottom: 1rem;
+    }
+
+    .faq-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+        .contact-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .contact-info {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+{% endblock %}

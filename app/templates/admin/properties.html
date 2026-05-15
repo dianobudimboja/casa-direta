@@ -1,0 +1,230 @@
+<!-- templates/admin/properties.html - VERSÃO CORRIGIDA -->
+{% extends "base.html" %}
+
+{% block title %}Gerir Imóveis - Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="admin-header">
+        <h1><i class="fas fa-building"></i> Gestão de Imóveis</h1>
+        <div class="filter-buttons">
+            <a href="{{ url_for('admin.properties') }}" class="btn btn-sm {% if current_filter == 'all' %}btn-primary{% else %}btn-outline{% endif %}">Todos</a>
+            <a href="{{ url_for('admin.properties', filter='suspicious') }}" class="btn btn-sm {% if current_filter == 'suspicious' %}btn-primary{% else %}btn-outline{% endif %}">
+                <i class="fas fa-exclamation-triangle"></i> Suspeitos
+            </a>
+            <a href="{{ url_for('admin.properties', filter='unverified') }}" class="btn btn-sm {% if current_filter == 'unverified' %}btn-primary{% else %}btn-outline{% endif %}">
+                <i class="fas fa-clock"></i> Não Verificados
+            </a>
+        </div>
+    </div>
+
+    <div class="properties-table-container">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Imóvel</th>
+                    <th>Proprietário</th>
+                    <th>Preço</th>
+                    <th>Status</th>
+                    <th>Score</th>
+                    <th>Data</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prop in properties.items %}
+                <tr class="{% if prop.requires_review %}suspicious-row{% endif %}">
+                    <td>#{{ prop.id }}</td>
+                    <td>
+                        <strong>{{ prop.title }}</strong>
+                        <div class="property-location">{{ prop.location }}</div>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('admin.users') }}?user={{ prop.user_id }}">
+                            {{ prop.owner.name if prop.owner else 'Desconhecido' }}
+                        </a>
+                    </td>
+                    <td class="price">{{ prop.price|format_price }}</td>
+                    <td>
+                        {% if prop.is_verified %}
+                            <span class="badge-verified"><i class="fas fa-check-circle"></i> Verificado</span>
+                        {% else %}
+                            <span class="badge-unverified"><i class="fas fa-clock"></i> Não verificado</span>
+                        {% endif %}
+                        <br>
+                        {% if prop.is_active %}
+                            <span class="badge-active">Ativo</span>
+                        {% else %}
+                            <span class="badge-inactive">Inativo</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if prop.suspicion_score > 0 %}
+                            <span class="suspicion-score {% if prop.suspicion_score >= 60 %}high{% elif prop.suspicion_score >= 30 %}medium{% else %}low{% endif %}">
+                                {{ prop.suspicion_score }}%
+                            </span>
+                        {% else %}
+                            <span class="suspicion-score low">0%</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ prop.created_at.strftime('%d/%m/%Y') }}</td>
+                    <td class="actions">
+                        <a href="{{ url_for('main.property_detail', property_id=prop.id) }}" class="action-btn" title="Ver">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        {% if not prop.is_verified %}
+                            <a href="{{ url_for('admin.verify_property', property_id=prop.id) }}" class="action-btn success" title="Verificar">
+                                <i class="fas fa-check-circle"></i>
+                            </a>
+                        {% endif %}
+                        <a href="{{ url_for('admin.delete_property', property_id=prop.id) }}" class="action-btn danger" title="Remover" onclick="return confirm('Remover este imóvel permanentemente?')">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if properties.pages > 1 %}
+        <div class="pagination">
+            {% for page in properties.iter_pages() %}
+                {% if page %}
+                    {% if page != properties.page %}
+                        <a href="{{ url_for('admin.properties', page=page, filter=current_filter) }}">{{ page }}</a>
+                    {% else %}
+                        <span class="current">{{ page }}</span>
+                    {% endif %}
+                {% else %}
+                    <span>...</span>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.admin-header {
+    margin: 2rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-table th {
+    background: var(--bg-secondary);
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.suspicious-row {
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.suspicion-score {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    border-radius: 1rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.suspicion-score.low { background: rgba(16,185,129,0.2); color: #10b981; }
+.suspicion-score.medium { background: rgba(245,158,11,0.2); color: #f59e0b; }
+.suspicion-score.high { background: rgba(239,68,68,0.2); color: #ef4444; }
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+.action-btn.success:hover {
+    background: var(--success);
+    color: white;
+}
+
+.action-btn.danger:hover {
+    background: var(--danger);
+    color: white;
+}
+
+.badge-verified, .badge-unverified, .badge-active, .badge-inactive {
+    display: inline-block;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.65rem;
+    margin: 0.125rem 0;
+}
+
+.badge-verified { background: rgba(16,185,129,0.2); color: #10b981; }
+.badge-unverified { background: rgba(245,158,11,0.2); color: #f59e0b; }
+.badge-active { background: rgba(16,185,129,0.2); color: #10b981; }
+.badge-inactive { background: rgba(239,68,68,0.2); color: #ef4444; }
+
+.price {
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.property-location {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 2rem 0;
+}
+
+.pagination a, .pagination span {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+.pagination .current {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+</style>
+{% endblock %}

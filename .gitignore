@@ -1,0 +1,46 @@
+# .gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+.env
+venv/
+.venv/
+env/
+ENV/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads
+app/static/uploads/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Flask
+instance/
+.webassets-cache
+
+# Testing
+.coverage
+htmlcov/
+
+# Modelos treinados (grandes)
+*.pkl
+*.joblib
+*.h5

@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Meus Contratos - Casa Direta{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-file-signature"></i> Meus Contratos</h1>
+        <p>Contratos de Arrendamento gerados</p>
+    </div>
+
+    {% if contracts %}
+    <div class="contracts-list">
+        {% for contract in contracts %}
+        <div class="contract-card">
+            <div class="contract-card-header">
+                <h3>{{ contract.property_title }}</h3>
+                <span class="status-badge status-{{ contract.status }}">
+                    {{ contract.status|replace('_', ' ')|title }}
+                </span>
+            </div>
+            <div class="contract-card-body">
+                <div class="contract-info">
+                    <p><i class="fas fa-map-marker-alt"></i> {{ contract.property_address }}</p>
+                    <p><i class="fas fa-user"></i>
+                        {% if contract.landlord_id == current_user.id %}
+                        Inquilino: {{ contract.tenant_name }}
+                        {% else %}
+                        Senhorio: {{ contract.landlord_name }}
+                        {% endif %}
+                    </p>
+                    <p><i class="fas fa-calendar"></i> {{ contract.start_date.strftime('%d/%m/%Y') }} - {{
+                        contract.end_date.strftime('%d/%m/%Y') }}</p>
+                    <p class="price">{{ contract.property_rent|format_price }}/mês</p>
+                </div>
+            </div>
+            <div class="contract-card-footer">
+                <a href="{{ url_for('contracts.view_contract', contract_id=contract.id) }}"
+                    class="btn btn-outline btn-sm">
+                    <i class="fas fa-eye"></i> Ver
+                </a>
+                <a href="{{ url_for('contracts.download_contract', contract_id=contract.id) }}"
+                    class="btn btn-primary btn-sm">
+                    <i class="fas fa-download"></i> PDF
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-file-signature fa-4x"></i>
+        <h3>Nenhum Contrato ainda</h3>
+        <p>Quando gerar Contratos de Arrendamento, eles aparecerão aqui.</p>
+        <a href="{{ url_for('main.index') }}" class="btn btn-primary">Explorar Imóveis</a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .page-header {
+        margin: 2rem 0;
+        text-align: center;
+    }
+
+    .contracts-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .contract-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        overflow: hidden;
+        transition: transform 0.2s;
+    }
+
+    .contract-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .contract-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .contract-card-header h3 {
+        margin: 0;
+        font-size: 1rem;
+    }
+
+    .contract-card-body {
+        padding: 1rem;
+    }
+
+    .contract-info p {
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .price {
+        font-weight: 700;
+        color: var(--primary);
+        margin-top: 0.5rem;
+    }
+
+    .contract-card-footer {
+        display: flex;
+        gap: 0.5rem;
+        padding: 1rem;
+        background: var(--bg-secondary);
+        border-top: 1px solid var(--border-color);
+    }
+
+    .btn-sm {
+        flex: 1;
+        padding: 0.5rem;
+        font-size: 0.75rem;
+        text-align: center;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+    }
+</style>
+{% endblock %}

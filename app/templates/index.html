@@ -1,0 +1,488 @@
+<!-- templates/index.html - PÁGINA INICIAL CORRETA COM MUNICÍPIOS ATUALIZADOS -->
+{% extends "base.html" %}
+
+{% block title %}Casa Direta - Arrendar sem intermediários{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <h1>Encontre a sua Casa <span class="highlight">diretamente</span> com o Proprietário</h1>
+        <p>Sem Intermediários, sem comissões abusivas. Milhares de Imóveis à sua espera.</p>
+
+        <form action="{{ url_for('main.index') }}" method="GET" class="search-bar">
+            <input type="text" name="query" placeholder="Pesquisar por Município/Bairro, Localização ou Palavra-Chave..."
+                value="{{ request.args.get('query', '') }}">
+            <button type="submit" class="btn btn-primary">Pesquisar</button>
+        </form>
+    </div>
+</section>
+
+<div class="container">
+    <!-- Estatísticas Rápidas -->
+    <div class="stats-row">
+        <div class="stat-item">
+            <span class="stat-number">{{ stats.total_properties if stats else 0 }}</span>
+            <span class="stat-label">Imóveis disponíveis</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ stats.total_landlords if stats else 0 }}</span>
+            <span class="stat-label">Senhorios verificados</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ "%.0f"|format(stats.avg_price) if stats and stats.avg_price else 0 }} Kz</span>
+            <span class="stat-label">Preço médio</span>
+        </div>
+    </div>
+
+    <!-- Filtros com Municípios Atualizados -->
+    <div class="filters-section">
+        <form method="GET" class="filters-form">
+            <div class="filter-group">
+                <select name="neighborhood" class="filter-select">
+                    <option value="">Todos os Municípios</option>
+                    <optgroup label="🟢 Zonas Periféricas">
+                        <option value="Cacuaco" {% if request.args.get('neighborhood')=='Cacuaco' %}selected{% endif %}>
+                            Cacuaco</option>
+                        <option value="Cazenga" {% if request.args.get('neighborhood')=='Cazenga' %}selected{% endif %}>
+                            Cazenga</option>
+                        <option value="Viana" {% if request.args.get('neighborhood')=='Viana' %}selected{% endif %}>
+                            Viana</option>
+                        <option value="Mulenvos" {% if request.args.get('neighborhood')=='Mulenvos' %}selected{% endif
+                            %}>Mulenvos</option>
+                        <option value="Hoji Ya Henda" {% if request.args.get('neighborhood')=='Hoji Ya Henda'
+                            %}selected{% endif %}>Hoji Ya Henda</option>
+                        <option value="Sambizanga" {% if request.args.get('neighborhood')=='Sambizanga' %}selected{%
+                            endif %}>Sambizanga</option>
+                    </optgroup>
+                    <optgroup label="🟡 Zonas Intermédias">
+                        <option value="Rangel" {% if request.args.get('neighborhood')=='Rangel' %}selected{% endif %}>
+                            Rangel</option>
+                        <option value="Samba" {% if request.args.get('neighborhood')=='Samba' %}selected{% endif %}>
+                            Samba</option>
+                        <option value="Camama" {% if request.args.get('neighborhood')=='Camama' %}selected{% endif %}>
+                            Camama</option>
+                        <option value="Kilamba Kiaxi" {% if request.args.get('neighborhood')=='Kilamba Kiaxi'
+                            %}selected{% endif %}>Kilamba Kiaxi</option>
+                    </optgroup>
+
+                    <optgroup label="🔴 Zonas Premium">
+                        <option value="Belas" {% if request.args.get('neighborhood')=='Belas' %}selected{% endif %}>
+                            Belas</option>
+                        <option value="Kilamba" {% if request.args.get('neighborhood')=='Kilamba' %}selected{% endif %}>
+                            Kilamba</option>
+                        <option value="Talatona" {% if request.args.get('neighborhood')=='Talatona' %}selected{% endif
+                            %}>Talatona</option>
+                        <option value="Mussulo" {% if request.args.get('neighborhood')=='Mussulo' %}selected{% endif %}>
+                            Mussulo</option>
+                    </optgroup>
+
+                    <optgroup label="🟠 Zonas Centrais">
+                        <option value="Maianga" {% if request.args.get('neighborhood')=='Maianga' %}selected{% endif %}>
+                            Maianga</option>
+                        <option value="Ingombota" {% if request.args.get('neighborhood')=='Ingombota' %}selected{% endif
+                            %}>Ingombota</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div class="filter-group">
+                <select name="bedrooms" class="filter-select">
+                    <option value="">Quantos Quartos?</option>
+                    <option value="1" {% if request.args.get('bedrooms')=='1' %}selected{% endif %}>1+ Quarto</option>
+                    <option value="2" {% if request.args.get('bedrooms')=='2' %}selected{% endif %}>2+ Quartos</option>
+                    <option value="3" {% if request.args.get('bedrooms')=='3' %}selected{% endif %}>3+ Quartos</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <input type="number" name="min_price" placeholder="Preço Mínimo"
+                    value="{{ request.args.get('min_price', '') }}" class="filter-input">
+            </div>
+            <div class="filter-group">
+                <input type="number" name="max_price" placeholder="Preço Máximo"
+                    value="{{ request.args.get('max_price', '') }}" class="filter-input">
+            </div>
+            <div class="filter-group">
+                <select name="sort_by" class="filter-select">
+                    <option value="newest" {% if request.args.get('sort_by')=='newest' %}selected{% endif %}>Mais
+                        Recentes</option>
+                    <option value="price_asc" {% if request.args.get('sort_by')=='price_asc' %}selected{% endif %}>Menor
+                        Preço</option>
+                    <option value="price_desc" {% if request.args.get('sort_by')=='price_desc' %}selected{% endif %}>
+                        Maior Preço</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+        </form>
+    </div>
+
+    <!-- Imóveis em Destaque -->
+    {% if featured_properties %}
+    <div class="featured-section">
+        <h2><i class="fas fa-star"></i> Imóveis em Destaque</h2>
+        <div class="property-grid">
+            {% for prop in featured_properties %}
+            <div class="card property-card">
+                <a href="{{ url_for('main.property_detail', property_id=prop.id) }}">
+                    <div class="card-img-placeholder">
+                        {% if prop.main_photo %}
+                        <img src="{{ url_for('static', filename='uploads/properties/' + prop.main_photo) }}"
+                            alt="{{ prop.title }}">
+                        {% else %}
+                        <i class="fas fa-home fa-3x"></i>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">{{ prop.title }}</h3>
+                        <p class="card-price">{{ prop.price|format_price }}</p>
+                        <p class="card-location"><i class="fas fa-map-marker-alt"></i> {{ prop.location }}</p>
+                        <div class="card-features">
+                            <span><i class="fas fa-bed"></i> {{ prop.bedrooms }}</span>
+                            <span><i class="fas fa-bath"></i> {{ prop.bathrooms }}</span>
+                        </div>
+                        <div class="card-footer">
+                            <span class="views"><i class="fas fa-eye"></i> {{ prop.views }}</span>
+                            {% if prop.is_verified %}
+                            <span class="verified"><i class="fas fa-check-circle"></i> Verificado</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Lista de Imóveis -->
+    <div class="properties-section">
+        <h2><i class="fas fa-building"></i> Imóveis Disponíveis</h2>
+
+        {% if properties and properties.items %}
+        <div class="property-grid">
+            {% for prop in properties.items %}
+            <div class="card property-card">
+                <a href="{{ url_for('main.property_detail', property_id=prop.id) }}">
+                    <div class="card-img-placeholder">
+                        {% if prop.main_photo %}
+                        <img src="{{ url_for('static', filename='uploads/properties/' + prop.main_photo) }}"
+                            alt="{{ prop.title }}">
+                        {% else %}
+                        <i class="fas fa-home fa-3x"></i>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">{{ prop.title|truncate(40) }}</h3>
+                        <p class="card-price">{{ prop.price|format_price }}</p>
+                        <p class="card-location"><i class="fas fa-map-marker-alt"></i> {{ prop.location }}</p>
+                        <div class="card-features">
+                            <span><i class="fas fa-bed"></i> {{ prop.bedrooms }}</span>
+                            <span><i class="fas fa-bath"></i> {{ prop.bathrooms }}</span>
+                            {% if prop.area %}
+                            <span><i class="fas fa-arrows-alt"></i> {{ prop.area }}m²</span>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer">
+                            <span class="views"><i class="fas fa-eye"></i> {{ prop.views }}</span>
+                            {% if prop.is_verified %}
+                            <span class="verified"><i class="fas fa-check-circle"></i> Verificado</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Paginação -->
+        {% if properties.pages > 1 %}
+        <div class="pagination">
+            {% for page in properties.iter_pages() %}
+            {% if page %}
+            {% if page != properties.page %}
+            <a href="{{ url_for('main.index', page=page, **request.args) }}">{{ page }}</a>
+            {% else %}
+            <span class="current">{{ page }}</span>
+            {% endif %}
+            {% else %}
+            <span>...</span>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-home fa-4x"></i>
+            <h3>Nenhum imóvel encontrado</h3>
+            <p>Tente ajustar os filtros ou volte mais tarde</p>
+            <a href="{{ url_for('main.index') }}" class="btn btn-primary">Limpar filtros</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .hero {
+        background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+        padding: 3rem 1rem;
+        text-align: center;
+        color: white;
+        margin-bottom: 2rem;
+    }
+
+    .hero h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .hero .highlight {
+        color: #fbbf24;
+    }
+
+    .hero p {
+        font-size: 1.125rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+    }
+
+    .search-bar {
+        max-width: 600px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 3rem;
+        display: flex;
+        overflow: hidden;
+    }
+
+    .search-bar input {
+        flex: 1;
+        padding: 1rem 1.5rem;
+        border: none;
+        font-size: 1rem;
+    }
+
+    .search-bar input:focus {
+        outline: none;
+    }
+
+    .search-bar button {
+        border-radius: 0 2rem 2rem 0;
+        padding: 0 2rem;
+    }
+
+    .stats-row {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: var(--card-bg);
+        border-radius: 1rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-number {
+        display: block;
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+    }
+
+    .filters-section {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .filters-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: flex-end;
+    }
+
+    .filter-group {
+        flex: 1;
+        min-width: 120px;
+    }
+
+    .filter-select,
+    .filter-input {
+        width: 100%;
+        padding: 0.5rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .property-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin: 1.5rem 0;
+    }
+
+    .property-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .property-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .property-card a {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .card-img-placeholder {
+        background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+        height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        overflow: hidden;
+    }
+
+    .card-img-placeholder img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .card-title {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-price {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .card-location {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+    }
+
+    .card-features {
+        display: flex;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        padding-top: 0.5rem;
+        border-top: 1px solid var(--border-color);
+        margin-top: 0.5rem;
+    }
+
+    .verified {
+        color: var(--success);
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin: 2rem 0;
+    }
+
+    .pagination a,
+    .pagination span {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        text-decoration: none;
+        color: var(--text-primary);
+    }
+
+    .pagination a:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    .pagination .current {
+        background: var(--primary);
+        color: white;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        background: var(--card-bg);
+        border-radius: 1rem;
+    }
+
+    .empty-state i {
+        margin-bottom: 1rem;
+        color: var(--text-muted);
+    }
+
+    .featured-section {
+        margin-bottom: 2rem;
+    }
+
+    .featured-section h2 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .properties-section h2 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .hero h1 {
+            font-size: 1.75rem;
+        }
+
+        .filters-form {
+            flex-direction: column;
+        }
+
+        .filter-group {
+            width: 100%;
+        }
+
+        .property-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-row {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+</style>
+{% endblock %}

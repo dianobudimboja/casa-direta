@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Avaliações de {{ user.name }} - Casa Direta{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="reviews-header">
+        <h1><i class="fas fa-star"></i> Avaliações de {{ user.name }}</h1>
+        <div class="reviews-summary">
+            <span class="rating-number">{{ "%.1f"|format(user.rating) }}</span>
+            <div class="rating-stars">
+                {% for i in range(5) %}
+                {% if i < user.rating|int %} <i class="fas fa-star"></i>
+                    {% else %}
+                    <i class="far fa-star"></i>
+                    {% endif %}
+                    {% endfor %}
+            </div>
+            <span class="reviews-count">{{ user.total_reviews }} avaliações no total</span>
+        </div>
+    </div>
+
+    <div class="reviews-list">
+        {% if reviews %}
+        {% for review in reviews %}
+        <div class="review-card">
+            <div class="review-header">
+                <div class="reviewer">
+                    <i class="fas fa-user-circle fa-2x"></i>
+                    <div>
+                        <strong>{{ review.reviewer.name }}</strong>
+                        <div class="review-rating">
+                            {% for i in range(5) %}
+                            {% if i < review.rating %} <i class="fas fa-star"></i>
+                                {% else %}
+                                <i class="far fa-star"></i>
+                                {% endif %}
+                                {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="review-date">{{ review.created_at.strftime('%d/%m/%Y') }}</div>
+            </div>
+            {% if review.comment %}
+            <div class="review-comment">"{{ review.comment }}"</div>
+            {% endif %}
+            {% if review.property %}
+            <div class="review-property">
+                <i class="fas fa-home"></i> Sobre: {{ review.property.title }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-star fa-3x"></i>
+            <h3>Nenhuma Avaliação ainda</h3>
+            <p>{{ user.name }} ainda não recebeu avaliações.</p>
+            {% if current_user.is_authenticated and current_user.id != user.id %}
+            <a href="{{ url_for('reviews.create_review', user_id=user.id) }}" class="btn btn-primary">
+                <i class="fas fa-star"></i> Ser o primeiro a Avaliar
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="back-link">
+        <a href="{{ url_for('dashboard.profile', user_id=user.id) }}" class="btn btn-outline">
+            <i class="fas fa-arrow-left"></i> Voltar ao Perfil
+        </a>
+    </div>
+</div>
+
+<style>
+    .reviews-header {
+        text-align: center;
+        margin: 2rem 0;
+    }
+
+    .reviews-summary {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .rating-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .rating-stars {
+        color: #fbbf24;
+        margin: 0.25rem 0;
+    }
+
+    .reviews-count {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+    }
+
+    .review-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+
+    .reviewer {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+    }
+
+    .reviewer i {
+        color: var(--text-muted);
+    }
+
+    .review-rating {
+        color: #fbbf24;
+        font-size: 0.75rem;
+    }
+
+    .review-date {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .review-comment {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        margin: 1rem 0;
+        font-style: italic;
+        line-height: 1.5;
+    }
+
+    .review-property {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        padding-top: 0.5rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .back-link {
+        margin: 2rem 0;
+        text-align: center;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+    }
+</style>
+{% endblock %}

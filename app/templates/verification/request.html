@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}Verificar Identidade - Casa Direta{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="verification-header">
+        <h1><i class="fas fa-shield-alt"></i> Verificação de Identidade</h1>
+        <p>Confirme a sua identidade para ganhar o selo de confiança</p>
+    </div>
+
+    <div class="verification-grid">
+        <div class="verification-form-container">
+            <form method="POST" enctype="multipart/form-data" class="verification-form">
+                {{ form.hidden_tag() }}
+
+                <div class="benefits-box">
+                    <h3>✅ Benefícios de ser verificado</h3>
+                    <ul>
+                        <li><i class="fas fa-check-circle"></i> Selo de "Verificado" no seu Perfil</li>
+                        <li><i class="fas fa-home"></i> Publicar até 10 Imóveis</li>
+                        <li><i class="fas fa-star"></i> Maior confiança dos inquilinos</li>
+                        <li><i class="fas fa-chart-line"></i> Anúncios com prioridade nas Pesquisas</li>
+                    </ul>
+                </div>
+
+                <div class="form-section">
+                    <h2><i class="fas fa-id-card"></i> Documento de Identificação (BI)</h2>
+                    <p class="section-hint">Envie Foto da Frente e do Verso do seu Bilhete de Identidade</p>
+
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label class="form-label">{{ form.bi_front.label }}</label>
+                            {{ form.bi_front(class="form-control", accept="image/*") }}
+                            <small>Frente do BI (JPG, PNG)</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">{{ form.bi_back.label }}</label>
+                            {{ form.bi_back(class="form-control", accept="image/*") }}
+                            <small>Verso do BI (JPG, PNG)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2><i class="fas fa-file-alt"></i> Comprovativo de Propriedade</h2>
+                    <p class="section-hint">Apenas para Senhorios (opcional, mas recomendado)</p>
+
+                    <div class="form-group">
+                        <label class="form-label">{{ form.property_document.label }}</label>
+                        {{ form.property_document(class="form-control", accept="image/*,.pdf") }}
+                        <small>Documento da casa, escritura, ou contrato de arrendamento anterior</small>
+                    </div>
+                </div>
+
+                <div class="form-warning">
+                    <i class="fas fa-lock"></i>
+                    <p>Os seus Documentos são seguros e apenas visíveis pela equipa de moderação. Nunca serão partilhados
+                        publicamente.</p>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-paper-plane"></i> Solicitar Verificação
+                    </button>
+                    <a href="{{ url_for('dashboard.profile') }}" class="btn btn-outline">Cancelar</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="verification-info">
+            <div class="info-card">
+                <h3><i class="fas fa-clock"></i> Tempo de Análise</h3>
+                <p>A análise do seu pedido pode levar até 48 horas úteis.</p>
+            </div>
+            <div class="info-card">
+                <h3><i class="fas fa-question-circle"></i> Dúvidas?</h3>
+                <p>Entre em Contacto com o Suporte: <strong>cientificando17@gmail.com</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .verification-header {
+        text-align: center;
+        margin: 2rem 0;
+    }
+
+    .verification-grid {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .verification-form-container {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1.5rem;
+    }
+
+    .benefits-box {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 0.75rem;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        color: white;
+    }
+
+    .benefits-box ul {
+        list-style: none;
+        padding: 0;
+        margin-top: 0.5rem;
+    }
+
+    .benefits-box li {
+        margin: 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .form-section h2 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-row-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .form-warning {
+        background: rgba(16, 185, 129, 0.1);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 1.5rem 0;
+    }
+
+    .form-warning i {
+        font-size: 1.5rem;
+        color: var(--success);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .verification-info {
+        position: sticky;
+        top: 100px;
+        height: fit-content;
+    }
+
+    .info-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .verification-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-row-2 {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

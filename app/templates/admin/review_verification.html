@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Revisar Verificação - {{ user.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="review-header">
+        <h1><i class="fas fa-id-card"></i> Revisar Verificação</h1>
+        <p>Utilizador: <strong>{{ user.name }}</strong> ({{ user.email }})</p>
+    </div>
+
+    <div class="review-grid">
+        <div class="documents-section">
+            <h2>Documentos Enviados</h2>
+
+            <div class="documents-grid">
+                <div class="document-card">
+                    <h3><i class="fas fa-id-card"></i> Frente do BI</h3>
+                    {% if user.bi_front_photo %}
+                    <a href="{{ url_for('admin.view_document', user_id=user.id, doc_type='bi_front') }}" target="_blank"
+                        class="doc-preview">
+                        <img src="{{ url_for('static', filename='uploads/verifications/' + user.bi_front_photo) }}"
+                            alt="BI Frente">
+                    </a>
+                    {% else %}
+                    <p class="no-doc">Documento não enviado</p>
+                    {% endif %}
+                </div>
+
+                <div class="document-card">
+                    <h3><i class="fas fa-id-card"></i> Verso do BI</h3>
+                    {% if user.bi_back_photo %}
+                    <a href="{{ url_for('admin.view_document', user_id=user.id, doc_type='bi_back') }}" target="_blank"
+                        class="doc-preview">
+                        <img src="{{ url_for('static', filename='uploads/verifications/' + user.bi_back_photo) }}"
+                            alt="BI Verso">
+                    </a>
+                    {% else %}
+                    <p class="no-doc">Documento não enviado</p>
+                    {% endif %}
+                </div>
+
+                {% if user.property_document %}
+                <div class="document-card">
+                    <h3><i class="fas fa-file-alt"></i> Comprovativo de Propriedade</h3>
+                    <a href="{{ url_for('admin.view_document', user_id=user.id, doc_type='property') }}" target="_blank"
+                        class="doc-link">
+                        <i class="fas fa-download"></i> Visualizar Documento
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="decision-section">
+            <h2>Decisão</h2>
+
+            <form method="POST" class="decision-form">
+                {{ form.hidden_tag() }}
+
+                <div class="form-group">
+                    <label class="form-label">{{ form.action.label }}</label>
+                    {{ form.action(class="form-control") }}
+                </div>
+
+                <div class="form-group" id="rejectionGroup" style="display: none;">
+                    <label class="form-label">{{ form.rejection_reason.label }}</label>
+                    {{ form.rejection_reason(class="form-control", rows=4, placeholder="Explique o motivo da
+                    rejeição...") }}
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-check-circle"></i> Processar Verificação
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Mostrar/esconder campo de motivo da rejeição
+    const actionSelect = document.querySelector('#action');
+    const rejectionGroup = document.querySelector('#rejectionGroup');
+
+    actionSelect.addEventListener('change', function () {
+        if (this.value === 'reject') {
+            rejectionGroup.style.display = 'block';
+        } else {
+            rejectionGroup.style.display = 'none';
+        }
+    });
+</script>
+
+<style>
+    .review-header {
+        margin: 2rem 0;
+    }
+
+    .review-grid {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .documents-section {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1.5rem;
+    }
+
+    .documents-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .document-card {
+        background: var(--bg-secondary);
+        border-radius: 0.75rem;
+        padding: 1rem;
+    }
+
+    .doc-preview img {
+        width: 100%;
+        height: auto;
+        border-radius: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .decision-section {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        position: sticky;
+        top: 100px;
+    }
+
+    .btn-block {
+        width: 100%;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .review-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

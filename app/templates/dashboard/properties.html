@@ -1,0 +1,304 @@
+<!-- templates/dashboard/properties.html - VERSÃO COMPLETA COM AÇÕES -->
+{% extends "base.html" %}
+
+{% block title %}Meus Imóveis - Casa Direta{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-home"></i> Meus Imóveis</h1>
+        {% if current_user.is_landlord %}
+        <a href="{{ url_for('main.create_property') }}" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> Publicar Novo Imóvel
+        </a>
+        {% endif %}
+    </div>
+
+    {% if properties.items %}
+        <div class="properties-table-container">
+            <table class="properties-table">
+                <thead>
+                    <tr>
+                        <th>Imóvel</th>
+                        <th>Localização</th>
+                        <th>Preço</th>
+                        <th>Visualizações</th>
+                        <th>Mensagens</th>
+                        <th>Estado</th>
+                        <th>Verificação</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prop in properties.items %}
+                    <tr>
+                        <td>
+                            <div class="property-title">
+                                <strong>{{ prop.title }}</strong>
+                                <small>{{ prop.created_at|format_date }}</small>
+                            </div>
+                        </td>
+                        <td>{{ prop.location }}</td>
+                        <td class="price">{{ prop.price|format_price }}</td>
+                        <td>{{ prop.views }}</td>
+                        <td>{{ prop.inquiries }}</td>
+                        <td>
+                            {% if prop.is_active %}
+                                <span class="status-active"><i class="fas fa-check-circle"></i> Ativo</span>
+                            {% else %}
+                                <span class="status-inactive"><i class="fas fa-ban"></i> Inativo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if prop.is_verified %}
+                                <span class="verified"><i class="fas fa-check-circle"></i> Verificado</span>
+                            {% else %}
+                                <span class="unverified"><i class="fas fa-clock"></i> Pendente</span>
+                            {% endif %}
+                        </td>
+                        <td class="actions">
+                            <!-- Ver detalhes -->
+                            <a href="{{ url_for('main.property_detail', property_id=prop.id) }}" class="action-btn" title="Ver imóvel">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <!-- Editar imóvel -->
+                            <a href="{{ url_for('dashboard.edit_property', property_id=prop.id) }}" class="action-btn edit" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <!-- Ativar/Desativar -->
+                            <a href="{{ url_for('dashboard.toggle_property_status', property_id=prop.id) }}" class="action-btn toggle" title="{{ 'Desativar' if prop.is_active else 'Ativar' }}">
+                                <i class="fas fa-{{ 'toggle-on' if prop.is_active else 'toggle-off' }}"></i>
+                            </a>
+                            <!-- Destacar (Premium) -->
+                            <a href="#" class="action-btn featured" title="Destacar anúncio (pago)">
+                                <i class="fas fa-star"></i>
+                            </a>
+                            <!-- Excluir -->
+                            <a href="{{ url_for('dashboard.delete_property', property_id=prop.id) }}" class="action-btn delete" title="Excluir" onclick="return confirm('Tem certeza que deseja eliminarr este imóvel? Esta ação não pode ser desfeita.')">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginação -->
+        {% if properties.pages > 1 %}
+        <div class="pagination">
+            {% for page in properties.iter_pages() %}
+                {% if page %}
+                    {% if page != properties.page %}
+                        <a href="{{ url_for('dashboard.my_properties', page=page) }}">{{ page }}</a>
+                    {% else %}
+                        <span class="current">{{ page }}</span>
+                    {% endif %}
+                {% else %}
+                    <span>...</span>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-home fa-4x"></i>
+            <h3>Nenhum Imóvel Publicado ainda</h3>
+            <p>Comece a Publicar os seus imóveis e encontre Inquilinos diretamente!</p>
+            <a href="{{ url_for('main.create_property') }}" class="btn btn-primary">Publicar Primeiro Imóvel</a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 2rem 0;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.properties-table-container {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    overflow-x: auto;
+}
+
+.properties-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+.properties-table th,
+.properties-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.properties-table th {
+    background: var(--bg-secondary);
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.properties-table tr:hover {
+    background: var(--bg-secondary);
+}
+
+.property-title strong {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.property-title small {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.price {
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.status-active {
+    color: var(--success);
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.status-inactive {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.verified {
+    color: var(--success);
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.unverified {
+    color: var(--warning);
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+}
+
+.action-btn.edit:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.action-btn.toggle:hover {
+    background: var(--warning);
+    color: white;
+}
+
+.action-btn.featured:hover {
+    background: #fbbf24;
+    color: white;
+}
+
+.action-btn.delete:hover {
+    background: var(--danger);
+    color: white;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 2rem 0;
+}
+
+.pagination a, .pagination span {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+.pagination a:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.pagination .current {
+    background: var(--primary);
+    color: white;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+}
+
+.empty-state i {
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .actions {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .action-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 0.8rem;
+    }
+}
+</style>
+{% endblock %}

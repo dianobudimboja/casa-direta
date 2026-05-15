@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Eliminar Conta - Casa Direta{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="delete-container">
+        <div class="delete-header">
+            <h1><i class="fas fa-trash-alt"></i> Eliminar Conta</h1>
+            <p>Esta ação é <strong>irreversível</strong>. Todos os seus dados serão permanentemente removidos.</p>
+        </div>
+
+        <div class="delete-card">
+            <div class="warning-box">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <strong>Ao eliminar a sua conta, os seguintes dados serão apagados:</strong>
+                    <ul>
+                        <li>📧 O seu email e Informações Pessoais</li>
+                        <li>🏠 Todos os seus Imóveis (se for Senhorio)</li>
+                        <li>💬 Todas as suas Mensagens</li>
+                        <li>⭐ As suas Avaliações e Favoritos</li>
+                        <li>📄 Os seus Contratos Gerados</li>
+                    </ul>
+                </div>
+            </div>
+
+            <form method="POST" class="delete-form"
+                onsubmit="return confirm('Tem CERTEZA que deseja eliminar a sua conta permanentemente? Esta ação NÃO pode ser desfeita.')">
+                <div class="form-group">
+                    <label class="form-label" for="password">
+                        <i class="fas fa-lock"></i> Confirme a sua Palavra-passe
+                    </label>
+                    <input type="password" class="form-control" id="password" name="password" required
+                        placeholder="Digite a sua palavra-passe">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt"></i> Eliminar Permanentemente
+                    </button>
+                    <a href="{{ url_for('dashboard.profile') }}" class="btn btn-outline">
+                        <i class="fas fa-arrow-left"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+
+            <div class="info-box">
+                <i class="fas fa-info-circle"></i>
+                <p>Se tiver Imóveis ativos, eles também serão eliminados. Considere desativá-los antes de eliminar a
+                    conta, se quiser que outros utilizadores ainda os vejam.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .delete-container {
+        max-width: 700px;
+        margin: 2rem auto;
+    }
+
+    .delete-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .delete-header h1 {
+        font-size: 1.75rem;
+        margin-bottom: 0.5rem;
+        color: var(--danger);
+    }
+
+    .delete-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 2rem;
+    }
+
+    .warning-box {
+        background: rgba(239, 68, 68, 0.1);
+        border-left: 4px solid var(--danger);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .warning-box i {
+        font-size: 1.5rem;
+        color: var(--danger);
+    }
+
+    .warning-box ul {
+        margin: 0.5rem 0 0 1rem;
+        font-size: 0.875rem;
+    }
+
+    .info-box {
+        background: rgba(59, 130, 246, 0.1);
+        border-left: 4px solid var(--primary);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin-top: 1.5rem;
+        display: flex;
+        gap: 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    .info-box i {
+        color: var(--primary);
+        font-size: 1.25rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .btn-danger {
+        background: var(--danger);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-danger:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+</style>
+{% endblock %}

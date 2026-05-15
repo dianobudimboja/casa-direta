@@ -1,0 +1,480 @@
+<!-- templates/admin/users.html - VERSÃO COMPLETA CORRIGIDA E ATUALIZADA -->
+{% extends "base.html" %}
+
+{% block title %}Gerir Utilizadores - Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-users"></i> Gestão de Utilizadores</h1>
+        <div class="filter-buttons">
+            <a href="{{ url_for('admin.users') }}"
+                class="filter-btn {% if current_filter == 'all' %}active{% endif %}">Todos</a>
+            <a href="{{ url_for('admin.users', filter='pending') }}"
+                class="filter-btn {% if current_filter == 'pending' %}active{% endif %}">
+                <i class="fas fa-clock"></i> Pendentes
+            </a>
+            <a href="{{ url_for('admin.users', filter='verified') }}"
+                class="filter-btn {% if current_filter == 'verified' %}active{% endif %}">
+                <i class="fas fa-check-circle"></i> Verificados
+            </a>
+            <a href="{{ url_for('admin.users', filter='landlords') }}"
+                class="filter-btn {% if current_filter == 'landlords' %}active{% endif %}">
+                <i class="fas fa-building"></i> Senhorios
+            </a>
+        </div>
+    </div>
+
+    <div class="table-container">
+        {% if users.items %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Utilizador</th>
+                    <th>Contacto</th>
+                    <th>Tipo</th>
+                    <th>Verificação</th>
+                    <th>Status</th>
+                    <th>Imóveis</th>
+                    <th>Data Registo</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users.items %}
+                <tr
+                    class="{% if user.verification_status == 'pending' %}pending-row{% endif %} {% if not user.is_active %}suspended-row{% endif %}">
+                    <td data-label="ID">#{{ user.id }}</td>
+                    <td data-label="Utilizador">
+                        <div class="user-info">
+                            <strong>{{ user.name }}</strong>
+                            <div class="user-rating">
+                                {% for i in range(5) %}
+                                {% if i < user.rating|int %} <i class="fas fa-star"></i>
+                                    {% else %}
+                                    <i class="far fa-star"></i>
+                                    {% endif %}
+                                    {% endfor %}
+                                    <span>({{ user.total_reviews }})</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td data-label="Contacto">
+                        <div>{{ user.email }}</div>
+                        <small class="text-muted">{{ user.phone or 'Sem telefone' }}</small>
+                    </td>
+                    <td data-label="Tipo">
+                        {% if user.is_landlord %}
+                        <span class="badge-landlord"><i class="fas fa-building"></i> Senhorio</span>
+                        {% else %}
+                        <span class="badge-tenant"><i class="fas fa-user"></i> Inquilino</span>
+                        {% endif %}
+                    </td>
+                    <td data-label="Verificação">
+                        {% if user.is_verified %}
+                        <span class="badge-verified"><i class="fas fa-check-circle"></i> Verificado</span>
+                        {% elif user.verification_status == 'pending' %}
+                        <span class="badge-pending"><i class="fas fa-clock"></i> Pendente</span>
+                        {% else %}
+                        <span class="badge-unverified"><i class="fas fa-times-circle"></i> Não verificado</span>
+                        {% endif %}
+                    </td>
+                    <td data-label="Status">
+                        {% if user.is_active %}
+                        <span class="badge-active"><i class="fas fa-circle"></i> Ativo</span>
+                        {% else %}
+                        <span class="badge-suspended"><i class="fas fa-ban"></i> Suspenso</span>
+                        {% endif %}
+                    </td>
+                    <td data-label="Imóveis" class="text-center">{{ user.properties_count }}</td>
+                    <td data-label="Data Registo">{{ user.created_at.strftime('%d/%m/%Y') }}</td>
+                    <td data-label="Ações" class="actions">
+                        <!-- Verificar documentos (se pendente) -->
+                        {% if user.verification_status == 'pending' %}
+                        <a href="{{ url_for('admin.review_verification', user_id=user.id) }}" class="action-btn review"
+                            title="Revisar Documentos">
+                            <i class="fas fa-id-card"></i>
+                        </a>
+                        {% endif %}
+
+                        <!-- Verificar utilizador (se não verificado e não pendente) -->
+                        {% if not user.is_verified and user.verification_status != 'pending' %}
+                        <a href="{{ url_for('admin.verify_user', user_id=user.id) }}" class="action-btn verify"
+                            title="Verificar">
+                            <i class="fas fa-check-circle"></i>
+                        </a>
+                        {% endif %}
+
+                        <!-- Suspender/Ativar utilizador -->
+                        {% if user.is_active %}
+                        <a href="{{ url_for('admin.suspend_user', user_id=user.id) }}" class="action-btn suspend"
+                            onclick="return confirm('Tem certeza que deseja SUSPENDER {{ user.name }}?')"
+                            title="Suspender">
+                            <i class="fas fa-ban"></i>
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('admin.suspend_user', user_id=user.id) }}" class="action-btn activate"
+                            onclick="return confirm('Tem certeza que deseja ATIVAR {{ user.name }}?')" title="Ativar">
+                            <i class="fas fa-play-circle"></i>
+                        </a>
+                        {% endif %}
+
+                        {% if user.is_landlord %}
+                        {% set active_properties = user.properties.filter_by(is_active=True).count() %}
+                        {% if active_properties == 0 %}
+                        <a href="{{ url_for('admin.demote_user', user_id=user.id) }}" class="action-btn demote"
+                            onclick="return confirm('Tem certeza que deseja REBAIXAR {{ user.name }} para inquilino?')"
+                            title="Rebaixar para inquilino">
+                            <i class="fas fa-arrow-down"></i>
+                        </a>
+                        {% else %}
+                        <span class="action-btn disabled"
+                            title="Tem {{ active_properties }} imóvel(eis) ativo(s). Remova-os primeiro.">
+                            <i class="fas fa-ban"></i>
+                        </span>
+                        {% endif %}
+                        {% endif %}
+
+                        {% if user.id != current_user.id %}
+                        <a href="{{ url_for('admin.admin_delete_user', user_id=user.id) }}" class="action-btn delete"
+                            onclick="return confirm('⚠️ ATENÇÃO: Tem certeza que deseja ELIMINAR PERMANENTEMENTE {{ user.name }}? Esta ação NÃO pode ser desfeita e apagará todos os seus dados (imóveis, mensagens, contratos, etc).')"
+                            title="Eliminar Permanentemente">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                        {% else %}
+                        <span class="action-btn disabled" title="Não pode eliminar a si próprio">
+                            <i class="fas fa-ban"></i>
+                        </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Paginação -->
+        {% if users.pages > 1 %}
+        <div class="pagination">
+            {% for page in users.iter_pages() %}
+            {% if page %}
+            {% if page != users.page %}
+            <a href="{{ url_for('admin.users', page=page, filter=current_filter) }}">{{ page }}</a>
+            {% else %}
+            <span class="current">{{ page }}</span>
+            {% endif %}
+            {% else %}
+            <span>...</span>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-users fa-4x"></i>
+            <h3>Nenhum utilizador encontrado</h3>
+            <p>Não existem utilizadores com os filtros selecionados.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 2rem 0;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .filter-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        padding: 0.5rem 1rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 2rem;
+        text-decoration: none;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-btn:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .filter-btn.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .table-container {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        overflow-x: auto;
+    }
+
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .admin-table th {
+        background: var(--bg-secondary);
+        font-weight: 600;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .admin-table tbody tr:hover {
+        background: var(--bg-secondary);
+    }
+
+    .pending-row {
+        background: rgba(59, 130, 246, 0.05);
+    }
+
+    .suspended-row {
+        background: rgba(239, 68, 68, 0.05);
+        opacity: 0.8;
+    }
+
+    .user-info strong {
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+
+    .user-rating {
+        font-size: 0.7rem;
+        color: #ffc107;
+    }
+
+    .user-rating span {
+        color: var(--text-muted);
+        margin-left: 0.25rem;
+    }
+
+    .text-muted {
+        color: var(--text-muted);
+        font-size: 0.7rem;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    /* Badges */
+    .badge-landlord,
+    .badge-tenant,
+    .badge-verified,
+    .badge-pending,
+    .badge-unverified,
+    .badge-active,
+    .badge-suspended {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.7rem;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    .badge-landlord {
+        background: rgba(59, 130, 246, 0.15);
+        color: #3b82f6;
+    }
+
+    .badge-tenant {
+        background: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+    }
+
+    .badge-verified {
+        background: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+    }
+
+    .badge-pending {
+        background: rgba(245, 158, 11, 0.15);
+        color: #f59e0b;
+    }
+
+    .badge-unverified {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+    }
+
+    .badge-active {
+        background: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+    }
+
+    .badge-suspended {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+    }
+
+    .badge-active i,
+    .badge-suspended i {
+        font-size: 0.6rem;
+    }
+
+    /* Ações */
+    .actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.5rem;
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .action-btn.review:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    .action-btn.verify:hover {
+        background: var(--success);
+        color: white;
+    }
+
+    .action-btn.suspend:hover {
+        background: var(--danger);
+        color: white;
+    }
+
+    .action-btn.activate:hover {
+        background: var(--success);
+        color: white;
+    }
+
+    /* Paginação */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin: 2rem 0;
+        padding: 1rem;
+    }
+
+    .pagination a,
+    .pagination span {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        text-decoration: none;
+        color: var(--text-primary);
+    }
+
+    .pagination a:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    .pagination .current {
+        background: var(--primary);
+        color: white;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-muted);
+    }
+
+    .empty-state i {
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        margin-bottom: 0.5rem;
+        color: var(--text-secondary);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .filter-buttons {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            padding: 0.75rem;
+        }
+
+        .actions {
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .action-btn {
+            width: 28px;
+            height: 28px;
+        }
+    }
+
+    .action-btn.demote:hover {
+        background: var(--warning);
+        color: white;
+    }
+
+    .action-btn.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .action-btn.delete:hover {
+        background: var(--danger);
+        color: white;
+    }
+</style>
+{% endblock %}

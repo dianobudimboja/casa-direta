@@ -1,0 +1,391 @@
+<!-- templates/auth/register.html - VERSÃO CORRIGIDA E BONITA -->
+{% extends "base.html" %}
+
+{% set hide_navbar = true %}
+
+{% block title %}Criar Conta - Casa Direta{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card register-card">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <i class="fas fa-home"></i>
+                <span>Casa<span class="highlight">Direta</span></span>
+            </div>
+            <h1>Criar conta grátis</h1>
+            <p>Junte-se à Plataforma mais confiável de Arrendamento</p>
+        </div>
+
+        <form method="POST" class="auth-form">
+            {{ form.hidden_tag() }}
+
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label class="form-label" for="name">
+                        <i class="fas fa-user"></i> Nome Completo
+                    </label>
+                    {{ form.name(class="form-control", placeholder="O seu nome completo") }}
+                    {% for error in form.name.errors %}
+                    <small class="error-text">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="email">
+                        <i class="fas fa-envelope"></i> Email
+                    </label>
+                    {{ form.email(class="form-control", placeholder="seu@email.com") }}
+                    {% for error in form.email.errors %}
+                    <small class="error-text">{{ error }}</small>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label class="form-label" for="phone">
+                        <i class="fas fa-phone"></i> Telefone (opcional)
+                    </label>
+                    {{ form.phone(class="form-control", placeholder="923456789", pattern="[0-9]{9}") }}
+                    <small>Digite apenas os 9 dígitos (ex: 923456789)</small>
+                    {% for error in form.phone.errors %}
+                    <small class="error-text">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="user_type">
+                        <i class="fas fa-id-card"></i> Tipo de Utilizador
+                    </label>
+                    <div class="user-type-select">
+                        <select name="user_type" class="form-control" required>
+                            <option value="" disabled selected>🔽 Selecione o tipo de Utilizador...</option>
+                            <option value="tenant">👤 Inquilino - Procuro Casa</option>
+                            <option value="landlord">🏢 Senhorio - Tenho Imóveis</option>
+                        </select>
+                    </div>
+                    {% for error in form.user_type.errors %}
+                    <small class="error-text">{{ error }}</small>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label class="form-label" for="password">
+                        <i class="fas fa-lock"></i> Palavra-passe
+                    </label>
+                    {{ form.password(class="form-control", placeholder="••••••••") }}
+                    <small>Crie uma Palavra-passe com pelo menos 6 caracteres</small>
+                    {% for error in form.password.errors %}
+                    <small class="error-text">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password_confirm">
+                        <i class="fas fa-check-circle"></i> Confirmar Palavra-passe
+                    </label>
+                    {{ form.password_confirm(class="form-control", placeholder="••••••••") }}
+                    {% for error in form.password_confirm.errors %}
+                    <small class="error-text">{{ error }}</small>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="terms">
+                <input type="checkbox" id="terms" required>
+                <label for="terms">
+                    Li e concordo com os <a href="{{ url_for('main.privacy') }}">Termos de Uso</a> e
+                    <a href="{{ url_for('main.privacy') }}">Política de Privacidade</a>
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fas fa-user-plus"></i> Criar Conta Grátis
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Já tem Conta? <a href="{{ url_for('auth.login') }}">Fazer Login</a></p>
+        </div>
+
+        <div class="auth-divider">
+            <span>Vantagens Exclusivas</span>
+        </div>
+
+        <div class="benefits">
+            <div class="benefit-item">
+                <i class="fas fa-check-circle"></i>
+                <span>Sem Intermediários</span>
+            </div>
+            <div class="benefit-item">
+                <i class="fas fa-shield-alt"></i>
+                <span>Verificação de Identidade</span>
+            </div>
+            <div class="benefit-item">
+                <i class="fas fa-file-signature"></i>
+                <span>Contratos Digitais</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Validação de telefone em tempo real
+    const phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+        phoneInput.addEventListener('blur', function () {
+            let value = this.value.trim();
+            if (value === '') return;
+
+            // Limpar caracteres não numéricos
+            let clean = value.replace(/[\s\+\(\)\-]/g, '');
+
+            // Verificar se é um número angolano válido
+            const angolaPattern = /^244?[0-9]{9}$|^9[0-9]{8}$/;
+
+            if (!angolaPattern.test(clean)) {
+                this.style.borderColor = '#ef4444';
+                // Mostrar mensagem de erro
+                let errorSpan = document.getElementById('phone-error');
+                if (!errorSpan) {
+                    errorSpan = document.createElement('small');
+                    errorSpan.id = 'phone-error';
+                    errorSpan.className = 'error-text';
+                    errorSpan.style.color = '#ef4444';
+                    this.parentNode.appendChild(errorSpan);
+                }
+                errorSpan.textContent = 'Número de telefone inválido. Use formato: 923456789';
+            } else {
+                this.style.borderColor = '#10b981';
+                const errorSpan = document.getElementById('phone-error');
+                if (errorSpan) errorSpan.remove();
+            }
+        });
+    }
+</script>
+
+<style>
+    .auth-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    }
+
+    .auth-card {
+        max-width: 550px;
+        width: 100%;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1.5rem;
+        padding: 2rem;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .auth-logo {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+    }
+
+    .auth-logo i {
+        color: var(--primary);
+        font-size: 2rem;
+    }
+
+    .auth-logo .highlight {
+        color: var(--primary);
+    }
+
+    .auth-header h1 {
+        font-size: 1.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-header p {
+        color: var(--text-muted);
+    }
+
+    .form-row-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        font-family: inherit;
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        color: var(--text-primary);
+        transition: border-color 0.2s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .error-text {
+        color: var(--danger);
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .terms {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 1rem 0;
+    }
+
+    .terms input {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    .terms label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+    }
+
+    .terms a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .btn-block {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn-primary {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+        transform: translateY(-1px);
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .auth-footer p {
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .auth-footer a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+
+    .auth-divider {
+        text-align: center;
+        margin: 1.5rem 0;
+        position: relative;
+    }
+
+    .auth-divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: var(--border-color);
+    }
+
+    .auth-divider span {
+        background: var(--card-bg);
+        padding: 0 1rem;
+        position: relative;
+        color: var(--text-muted);
+        font-size: 0.875rem;
+    }
+
+    .benefits {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .benefit-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+    }
+
+    .benefit-item i {
+        color: var(--success);
+    }
+
+    @media (max-width: 550px) {
+        .form-row-2 {
+            grid-template-columns: 1fr;
+        }
+
+        .auth-card {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Casa Direta{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Cabeçalho -->
+    <div class="dashboard-header">
+        <h1><i class="fas fa-tachometer-alt"></i> Olá, {{ current_user.name }}!</h1>
+        <p>Bem-vindo ao seu painel de controlo</p>
+    </div>
+
+    <!-- Cards de Estatísticas -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-home"></i></div>
+            <div class="stat-info">
+                <h3>{{ stats.properties_count }}</h3>
+                <p>Total de Imóveis</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-eye"></i></div>
+            <div class="stat-info">
+                <h3>{{ stats.total_views }}</h3>
+                <p>Visualizações</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-envelope"></i></div>
+            <div class="stat-info">
+                <h3>{{ stats.unread_messages }}</h3>
+                <p>Mensagens não lidas</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-star"></i></div>
+            <div class="stat-info">
+                <h3>{{ "%.1f"|format(stats.rating) }}</h3>
+                <p>Avaliação média</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ações Rápidas -->
+    <div class="quick-actions">
+        <h2><i class="fas fa-bolt"></i> Ações Rápidas</h2>
+        <div class="action-buttons">
+            {% if current_user.is_landlord %}
+            <a href="{{ url_for('main.create_property') }}" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i> Publicar Imóvel
+            </a>
+            {% endif %}
+            <a href="{{ url_for('dashboard.profile') }}" class="btn btn-outline">
+                <i class="fas fa-user-edit"></i> Editar Perfil
+            </a>
+            <a href="{{ url_for('chat.inbox') }}" class="btn btn-outline">
+                <i class="fas fa-envelope"></i> Ver Mensagens
+                {% if stats.unread_messages > 0 %}
+                <span class="badge">{{ stats.unread_messages }}</span>
+                {% endif %}
+            </a>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Meus Imóveis Recentes -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3><i class="fas fa-home"></i> Meus Imóveis Recentes</h3>
+                <a href="{{ url_for('dashboard.my_properties') }}" class="btn-link">Ver todos →</a>
+            </div>
+            <div class="card-body">
+                {% if recent_properties %}
+                    <div class="recent-properties">
+                        {% for prop in recent_properties %}
+                        <div class="recent-property-item">
+                            <div class="property-info">
+                                <h4>{{ prop.title }}</h4>
+                                <p><i class="fas fa-map-marker-alt"></i> {{ prop.location }}</p>
+                                <p class="price">{{ prop.price|format_price }}</p>
+                            </div>
+                            <div class="property-stats">
+                                <span><i class="fas fa-eye"></i> {{ prop.views }}</span>
+                                <span><i class="fas fa-comment"></i> {{ prop.inquiries }}</span>
+                            </div>
+                            <div class="property-actions">
+                                <a href="{{ url_for('main.property_detail', property_id=prop.id) }}" class="btn-sm">Ver</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="empty-state">
+                        {% if current_user.is_landlord %}
+                            Você ainda não publicou imóveis.
+                            <a href="{{ url_for('main.create_property') }}">Publicar agora</a>
+                        {% else %}
+                            Você ainda não tem imóveis. 
+                            <a href="{{ url_for('main.index') }}">Explore os imóveis disponíveis</a>
+                        {% endif %}
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Mensagens Recentes -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3><i class="fas fa-comments"></i> Mensagens Recentes</h3>
+                <a href="{{ url_for('chat.inbox') }}" class="btn-link">Ver todas →</a>
+            </div>
+            <div class="card-body">
+                {% if recent_messages %}
+                    <div class="recent-messages">
+                        {% for msg in recent_messages %}
+                        <div class="message-item {% if not msg.read and msg.receiver_id == current_user.id %}unread{% endif %}">
+                            <div class="message-sender">
+                                {% if msg.sender_id == current_user.id %}
+                                    <i class="fas fa-user"></i> Para: {{ msg.receiver.name }}
+                                {% else %}
+                                    <i class="fas fa-user"></i> De: {{ msg.sender.name }}
+                                {% endif %}
+                            </div>
+                            <div class="message-preview">{{ msg.content|truncate(60) }}</div>
+                            <div class="message-time">{{ msg.created_at|time_ago }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="empty-state">Nenhuma mensagem ainda.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-header {
+    margin: 2rem 0;
+    text-align: center;
+}
+
+.dashboard-header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    color: var(--primary);
+}
+
+.stat-info h3 {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+.stat-info p {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+.quick-actions {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    color: white;
+}
+
+.quick-actions h2 {
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.action-buttons .btn-outline {
+    background: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.3);
+    color: white;
+}
+
+.action-buttons .btn-outline:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.dashboard-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.btn-link {
+    color: var(--primary);
+    font-size: 0.875rem;
+    text-decoration: none;
+}
+
+.card-body {
+    padding: 1rem 1.5rem;
+}
+
+.recent-property-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.recent-property-item:last-child {
+    border-bottom: none;
+}
+
+.property-info h4 {
+    margin-bottom: 0.25rem;
+    font-size: 1rem;
+}
+
+.property-info p {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.property-info .price {
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.property-stats {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.message-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.message-item.unread {
+    background: var(--bg-secondary);
+    margin: 0 -1.5rem;
+    padding: 0.75rem 1.5rem;
+}
+
+.message-sender {
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.message-preview {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.message-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 0.25rem;
+    background: var(--primary);
+    color: white;
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>
+{% endblock %}

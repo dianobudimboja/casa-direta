@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Contrato - {{ contract.property_title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="contract-view-header">
+        <h1><i class="fas fa-file-signature"></i> Contrato de Arrendamento</h1>
+        <div class="status-badge status-{{ contract.status }}">
+            {{ contract.status|replace('_', ' ')|title }}
+        </div>
+    </div>
+
+    <div class="contract-content">
+        <div class="contract-details">
+            <div class="detail-section">
+                <h3><i class="fas fa-home"></i> Imóvel</h3>
+                <p><strong>{{ contract.property_title }}</strong></p>
+                <p>{{ contract.property_address }}</p>
+                <p class="price">{{ contract.property_rent|format_price }}/mês</p>
+            </div>
+
+            <div class="detail-section">
+                <h3><i class="fas fa-users"></i> Partes Envolvidas</h3>
+                <div class="party">
+                    <strong>Senhorio:</strong> {{ contract.landlord_name }}
+                    {% if contract.landlord_phone %} - {{ contract.landlord_phone }}{% endif %}
+                </div>
+                <div class="party">
+                    <strong>Inquilino:</strong> {{ contract.tenant_name }}
+                    {% if contract.tenant_phone %} - {{ contract.tenant_phone }}{% endif %}
+                </div>
+                {% if contract.tenant_bi %}
+                <div class="party">
+                    <strong>BI Inquilino:</strong> {{ contract.tenant_bi }}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="detail-section">
+                <h3><i class="fas fa-calendar-alt"></i> Prazo</h3>
+                <p><strong>Início:</strong> {{ contract.start_date.strftime('%d/%m/%Y') }}</p>
+                <p><strong>Término:</strong> {{ contract.end_date.strftime('%d/%m/%Y') }}</p>
+                <p><strong>Pagamento:</strong> Dia {{ contract.payment_day }} de cada mês</p>
+                {% if contract.security_deposit > 0 %}
+                <p><strong>Caução:</strong> {{ contract.security_deposit|format_price }}</p>
+                {% endif %}
+            </div>
+
+            {% if contract.additional_clauses %}
+            <div class="detail-section">
+                <h3><i class="fas fa-file-alt"></i> Cláusulas Adicionais</h3>
+                <p>{{ contract.additional_clauses.replace('\n', '<br>')|safe }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="contract-actions">
+            <a href="{{ url_for('contracts.download_contract', contract_id=contract.id) }}"
+                class="btn btn-primary btn-block">
+                <i class="fas fa-download"></i> Descarregar PDF
+            </a>
+            <a href="#" class="btn btn-outline btn-block">
+                <i class="fas fa-print"></i> Imprimir
+            </a>
+            <a href="{{ url_for('contracts.my_contracts') }}" class="btn btn-outline btn-block">
+                <i class="fas fa-arrow-left"></i> Os meus Contratos
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .contract-view-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 2rem 0;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .status-draft {
+        background: rgba(245, 158, 11, 0.2);
+        color: #f59e0b;
+    }
+
+    .contract-content {
+        display: grid;
+        grid-template-columns: 1fr 280px;
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .contract-details {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1.5rem;
+    }
+
+    .detail-section {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .detail-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .detail-section h3 {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .price {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .contract-actions {
+        position: sticky;
+        top: 100px;
+        height: fit-content;
+    }
+
+    .btn-block {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .contract-content {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

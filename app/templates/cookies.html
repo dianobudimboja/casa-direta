@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Política de Cookies - Casa Direta{% endblock %}
+
+{% block content %}
+<div class="legal-container">
+    <div class="legal-header">
+        <h1><i class="fas fa-cookie-bite"></i> Política de Cookies</h1>
+        <p>Última atualização: 10 de maio de 2026</p>
+    </div>
+
+    <div class="legal-content">
+        <section>
+            <h2>1. O que são Cookies?</h2>
+            <p>Cookies são pequenos ficheiros de texto que são armazenados no seu dispositivo (computador, tablet ou
+                telemóvel) quando visita um website. Eles ajudam o website a reconhecê-lo e a lembrar-se das suas
+                preferências.</p>
+        </section>
+
+        <section>
+            <h2>2. Tipos de Cookies que Utilizamos</h2>
+
+            <h3>2.1 Cookies Essenciais (Obrigatórios)</h3>
+            <p>Estes cookies são necessários para o funcionamento básico da plataforma. Não podem ser desativados.</p>
+            <ul>
+                <li><strong>session_id:</strong> Mantém a sua sessão ativa enquanto navega.</li>
+                <li><strong>csrf_token:</strong> Protege contra ataques de falsificação de pedidos.</li>
+                <li><strong>theme_preference:</strong> Guarda a sua preferência de tema (claro/escuro).</li>
+            </ul>
+
+            <h3>2.2 Cookies de Preferência</h3>
+            <p>Estes cookies permitem que a plataforma se lembre das suas escolhas.</p>
+            <ul>
+                <li><strong>remember_me:</strong> Mantém a sua sessão ativa entre visitas.</li>
+                <li><strong>search_filters:</strong> Guarda os seus filtros de pesquisa recentes.</li>
+            </ul>
+
+            <h3>2.3 Cookies de Análise (Opcionais)</h3>
+            <p>Utilizamos ferramentas para entender como os utilizadores interagem com a plataforma.</p>
+            <ul>
+                <li><strong>_ga:</strong> Google Analytics (análise de tráfego).</li>
+                <li><strong>_gid:</strong> Google Analytics (sessões).</li>
+            </ul>
+
+            <h3>2.4 Cookies de Funcionalidade</h3>
+            <p>Melhoram a experiência do utilizador.</p>
+            <ul>
+                <li><strong>favorites:</strong> Guarda os imóveis que adicionou aos favoritos.</li>
+                <li><strong>recently_viewed:</strong> Regista os últimos imóveis visitados.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>3. Cookies de Terceiros</h2>
+            <p>Alguns serviços externos também podem colocar cookies no seu dispositivo:</p>
+            <ul>
+                <li><strong>Google Analytics:</strong> Para análise de tráfego (anónimo).</li>
+                <li><strong>Leaflet / OpenStreetMap:</strong> Para exibir mapas dos imóveis.</li>
+                <li><strong>Brevo (Sendinblue):</strong> Para envio de emails transacionais.</li>
+                <li><strong>WhatsApp / Facebook:</strong> Botões de partilha.</li>
+            </ul>
+            <p>Não temos controlo sobre os cookies de terceiros. Recomendamos que consulte as respetivas políticas de
+                privacidade.</p>
+        </section>
+
+        <section>
+            <h2>4. Duração dos Cookies</h2>
+            <ul>
+                <li><strong>Cookies de sessão:</strong> Expiram quando fecha o navegador.</li>
+                <li><strong>Cookies persistentes:</strong> Permanecem no seu dispositivo por um período determinado (até
+                    12 meses).</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>5. Consentimento</h2>
+            <p>Ao utilizar a Casa Direta, concorda com a utilização de cookies de acordo com esta Política. Pode gerir
+                as suas preferências a qualquer momento através do nosso banner de cookies ou das definições do seu
+                navegador.</p>
+        </section>
+
+        <section>
+            <h2>6. Como Gerir os Cookies</h2>
+            <p>Pode controlar e/ou eliminar cookies através das definições do seu navegador:</p>
+            <ul>
+                <li><strong>Google Chrome:</strong> Definições → Privacidade e segurança → Cookies e outros dados do
+                    site.</li>
+                <li><strong>Mozilla Firefox:</strong> Opções → Privacidade e segurança → Cookies e dados do site.</li>
+                <li><strong>Microsoft Edge:</strong> Definições → Cookies e permissões do site → Gerir cookies.</li>
+                <li><strong>Safari:</strong> Preferências → Privacidade → Bloquear todos os cookies.</li>
+            </ul>
+            <p><strong>Nota:</strong> Desativar cookies essenciais pode afetar o funcionamento da plataforma.</p>
+        </section>
+
+        <section>
+            <h2>7. Alterações a esta Política</h2>
+            <p>Podemos atualizar esta Política de Cookies periodicamente. Qualquer alteração será publicada nesta
+                página.</p>
+        </section>
+
+        <section>
+            <h2>8. Contacto</h2>
+            <p>Se tiver dúvidas sobre a nossa utilização de cookies, contacte-nos através de:</p>
+            <p><strong>Email:</strong> <a href="mailto:cientificando17@gmail.com">cientificando17@gmail.com</a></p>
+        </section>
+
+        <div class="legal-footer">
+            <p>🍪 Ao continuar a utilizar a Casa Direta, aceita a nossa Política de Cookies.</p>
+            <button id="acceptCookiesBtn" class="btn btn-primary" style="margin-top: 1rem;">
+                <i class="fas fa-check"></i> Aceitar Cookies
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('acceptCookiesBtn')?.addEventListener('click', function () {
+        // Guardar preferência de cookies
+        document.cookie = "cookies_accepted=true; max-age=" + 60 * 60 * 24 * 365 + "; path=/";
+        alert('Preferência de cookies guardada!');
+    });
+</script>
+
+<style>
+    .legal-container {
+        max-width: 900px;
+        margin: 2rem auto;
+    }
+
+    .legal-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .legal-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .legal-header p {
+        color: var(--text-muted);
+    }
+
+    .legal-content {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 2rem;
+    }
+
+    .legal-content section {
+        margin-bottom: 2rem;
+    }
+
+    .legal-content h2 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        color: var(--primary);
+        border-left: 3px solid var(--primary);
+        padding-left: 0.75rem;
+    }
+
+    .legal-content h3 {
+        font-size: 1rem;
+        margin: 1rem 0 0.5rem;
+        color: var(--text-secondary);
+    }
+
+    .legal-content p {
+        margin-bottom: 0.75rem;
+        line-height: 1.6;
+    }
+
+    .legal-content ul {
+        margin: 0.75rem 0 0.75rem 1.5rem;
+    }
+
+    .legal-content li {
+        margin-bottom: 0.5rem;
+        line-height: 1.5;
+    }
+
+    .legal-footer {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+        text-align: center;
+        background: var(--bg-secondary);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}

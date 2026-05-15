@@ -1,0 +1,649 @@
+{% extends "base.html" %}
+
+{% block title %}Meu Perfil - Casa Direta{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="profile-container">
+        <!-- Cabeçalho do Perfil -->
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <i class="fas fa-user-circle fa-4x"></i>
+            </div>
+            <div class="profile-info">
+                <h1>{{ user.name }}</h1>
+                <p class="email"><i class="fas fa-envelope"></i> {{ user.email }}</p>
+                <div class="verification-badge">
+                    {% if user.is_verified %}
+                    <span class="badge-verified"><i class="fas fa-check-circle"></i> Verificado ✅</span>
+                    {% elif user.verification_status == 'pending' %}
+                    <span class="badge-pending"><i class="fas fa-clock"></i> Verificação Pendente ⏳</span>
+                    {% else %}
+                    <span class="badge-unverified"><i class="fas fa-times-circle"></i> Não Verificado</span>
+                    {% endif %}
+
+                    {% if user.is_landlord %}
+                    <span class="badge-landlord"><i class="fas fa-building"></i> Senhorio</span>
+                    {% else %}
+                    <span class="badge-tenant"><i class="fas fa-user"></i> Inquilino</span>
+                    {% endif %}
+                </div>
+                <div class="rating">
+                    {% for i in range(5) %}
+                    {% if i < user.rating|int %} <i class="fas fa-star"></i>
+                        {% else %}
+                        <i class="far fa-star"></i>
+                        {% endif %}
+                        {% endfor %}
+                        <span>({{ user.total_reviews }} avaliações)</span>
+                </div>
+
+                <!-- ⭐ BOTÃO DE AVALIAÇÃO - SÓ APARECE SE NÃO FOR O PRÓPRIO PERFIL ⭐ -->
+                {% if current_user.is_authenticated and current_user.id != user.id %}
+                <div class="profile-action-buttons">
+                    <a href="{{ url_for('reviews.create_review', user_id=user.id) }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-star"></i> Avaliar {{ user.name.split()[0] }}
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="profile-content">
+            <form method="POST" class="profile-form">
+                <div class="form-section">
+                    <h2><i class="fas fa-user"></i> Informações Pessoais</h2>
+
+                    <div class="form-group">
+                        <label class="form-label" for="name">Nome completo</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ user.name }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="email">Email</label>
+                        <input type="email" class="form-control" id="email" value="{{ user.email }}" disabled>
+                        <small>O email não pode ser alterado</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="phone">Telefone</label>
+                        <input type="tel" class="form-control" id="phone" name="phone" value="{{ user.phone or '' }}"
+                            placeholder="ex: 923456789">
+                    </div>
+                </div>
+
+                <!-- ⭐ NOVO: Secção para pedido de senhorio ⭐ -->
+                {% if not current_user.is_landlord %}
+                <div class="form-section role-request-section">
+                    <h2><i class="fas fa-building"></i> Quer publicar Imóveis?</h2>
+                    <p>Torne-se Senhorio na Plataforma e comece a Arrendar.</p><br>
+
+                    {% if current_user.requested_role == 'landlord' %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-clock"></i> Pedido Pendente de Aprovação.
+                        <a href="{{ url_for('dashboard.cancel_landlord_request') }}" class="btn-link">Cancelar
+                            Pedido</a>
+                    </div>
+                    {% else %}
+                    <a href="{{ url_for('dashboard.request_landlord') }}" class="btn btn-primary">
+                        <i class="fas fa-user-graduate"></i> Solicitar Aprovação para Senhorio
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Secção de Verificação de Identidade -->
+                <div class="form-section verification-section">
+                    <h2><i class="fas fa-shield-alt"></i> Verificação de Identidade</h2>
+
+                    {% if user.is_verified %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <strong> Conta verificada!</strong> Você tem o selo de confiança da Casa Direta.
+                    </div>
+                    {% elif user.verification_status == 'pending' %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-clock"></i>
+                        <strong>⏳ Verificação pendente!</strong> Seu Pedido está sendo analisado pela nossa Equipa (até
+                        72h).
+                    </div>
+                    {% elif user.verification_status == 'rejected' %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-times-circle"></i>
+                        <strong>❌ Verificação Rejeitada!</strong>
+                        Motivo: {{ user.verification_rejection_reason or 'Documentos inválidos ou ilegíveis.' }}
+                    </div>
+                    <a href="{{ url_for('verification.request_verification') }}" class="btn btn-primary">
+                        <i class="fas fa-redo"></i> Solicitar Novamente
+                    </a>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>🔐 Verifique sua Conta!</strong> Utilize o Botão abaixo para solicitar a verificação de
+                        identidade.
+                    </div>
+                    <a href="{{ url_for('verification.request_verification') }}" class="btn btn-primary">
+                        <i class="fas fa-id-card"></i> Solicitar Verificação
+                    </a>
+                    {% endif %}
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Guardar Alterações</button>
+                    <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline">Cancelar</a>
+                </div>
+            </form>
+
+            <div class="security-section">
+                <h2><i class="fas fa-key"></i> Segurança</h2>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    Para alterar sua Palavra-passe, entre em Contacto com o Suporte.
+                </div>
+
+                <h2><i class="fas fa-chart-line"></i> Estatísticas da Conta</h2>
+                <div class="stats-list">
+                    <div class="stat-row">
+                        <span>Membro desde:</span>
+                        <strong>{{ user.created_at|format_date }}</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>Último Login:</span>
+                        <strong>{{ user.last_login|time_ago if user.last_login else 'Nunca' }}</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>Total de imóveis:</span>
+                        <strong>{{ user.properties_count }}</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>Negócios Bem-Sucedidos:</span>
+                        <strong>{{ user.successful_deals }}</strong>
+                    </div>
+                </div>
+
+                <!-- ⭐ SECÇÃO DE ELIMINAÇÃO DE CONTA ⭐ -->
+                <div class="delete-account-section">
+                    <hr><br>
+                    <h3><i class="fas fa-trash-alt"></i> Zona de Risco</h3>
+                    <p class="text-muted">Eliminar a sua conta é uma ação irreversível.</p><br>
+                    <a href="{{ url_for('dashboard.delete_account') }}" class="btn btn-outline-danger"
+                        onclick="return confirm('Tem certeza que deseja eliminar a sua conta? Esta ação NÃO pode ser desfeita.')">
+                        <i class="fas fa-trash-alt"></i> Eliminar Conta
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secção de Avaliações Recebidas -->
+    <div class="reviews-section">
+        <h2><i class="fas fa-star"></i> Avaliações Recebidas</h2>
+
+        {% set reviews_list = user.get_received_reviews() %}
+
+        {% if reviews_list %}
+        <div class="reviews-summary">
+            <div class="average-rating">
+                <span class="rating-number">{{ "%.1f"|format(user.rating) }}</span>
+                <div class="rating-stars">
+                    {% for i in range(5) %}
+                    {% if i < user.rating|int %} <i class="fas fa-star"></i>
+                        {% else %}
+                        <i class="far fa-star"></i>
+                        {% endif %}
+                        {% endfor %}
+                </div>
+                <span class="reviews-count">{{ user.total_reviews }} avaliações</span>
+            </div>
+        </div>
+
+        <div class="reviews-list">
+            {% for review in reviews_list %}
+            <div class="review-item">
+                <div class="reviewer-info">
+                    <i class="fas fa-user-circle"></i>
+                    <div>
+                        <strong>{{ review.reviewer.name }}</strong>
+                        <div class="review-rating">
+                            {% for i in range(5) %}
+                            {% if i < review.rating %} <i class="fas fa-star"></i>
+                                {% else %}
+                                <i class="far fa-star"></i>
+                                {% endif %}
+                                {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <!-- ⭐ AQUI É ONDE O COMENTÁRIO DEVE APARECER ⭐ -->
+                {% if review.comment and review.comment|trim != '' %}
+                <div class="review-comment">
+                    <i class="fas fa-quote-left"></i>
+                    {{ review.comment }}
+                    <i class="fas fa-quote-right"></i>
+                </div>
+                {% endif %}
+                <div class="review-date">{{ review.created_at|time_ago }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <a href="{{ url_for('reviews.user_reviews', user_id=user.id) }}" class="btn-link">Ver todas as Avaliações →</a>
+        {% else %}
+        <div class="empty-state">
+            <p>Nenhuma Avaliação ainda.</p>
+            {% if current_user.is_authenticated and current_user.id != user.id %}
+            <a href="{{ url_for('reviews.create_review', user_id=user.id) }}" class="btn btn-outline btn-sm">
+                <i class="fas fa-star"></i> Ser o primeiro a Avaliar
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .profile-container {
+        max-width: 1000px;
+        margin: 2rem auto;
+    }
+
+    .profile-header {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 1rem;
+        padding: 2rem;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+    }
+
+    .profile-avatar i {
+        font-size: 5rem;
+    }
+
+    .profile-info h1 {
+        margin-bottom: 0.5rem;
+        color: white;
+    }
+
+    .profile-info .email {
+        opacity: 0.9;
+        margin-bottom: 0.5rem;
+    }
+
+    .verification-badge {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .profile-action-buttons {
+        margin-top: 0.75rem;
+    }
+
+    .badge-verified,
+    .badge-pending,
+    .badge-unverified,
+    .badge-landlord,
+    .badge-tenant {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .badge-verified {
+        background: rgba(255, 255, 255, 0.2);
+        color: #10b981;
+    }
+
+    .badge-pending {
+        background: rgba(255, 255, 255, 0.2);
+        color: #f59e0b;
+    }
+
+    .badge-unverified {
+        background: rgba(255, 255, 255, 0.2);
+        color: #ef4444;
+    }
+
+    .badge-landlord,
+    .badge-tenant {
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .rating i {
+        color: #ffc107;
+    }
+
+    .profile-content {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        gap: 2rem;
+    }
+
+    .profile-form {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1.5rem;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .form-section:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+        margin-bottom: 0;
+    }
+
+    .form-section h2 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .verification-section {
+        background: rgba(59, 130, 246, 0.05);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .alert-success {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid #10b981;
+        color: #10b981;
+    }
+
+    .alert-warning {
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid #f59e0b;
+        color: #f59e0b;
+    }
+
+    .alert-danger {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid #ef4444;
+        color: #ef4444;
+    }
+
+    .alert-info {
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid #3b82f6;
+        color: #3b82f6;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .security-section {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1.5rem;
+    }
+
+    .security-section h2 {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .stats-list {
+        margin-top: 1rem;
+    }
+
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .stat-row:last-child {
+        border-bottom: none;
+    }
+
+    .reviews-section {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        max-width: 1000px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .reviews-section h2 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .reviews-summary {
+        text-align: center;
+        padding: 1rem;
+        background: var(--bg-secondary);
+        border-radius: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .rating-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .rating-stars {
+        color: #fbbf24;
+        margin: 0.25rem 0;
+    }
+
+    .reviews-count {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .review-item {
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .review-item:last-child {
+        border-bottom: none;
+    }
+
+    .reviewer-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .reviewer-info i {
+        font-size: 1.5rem;
+        color: var(--text-muted);
+    }
+
+    .review-rating {
+        color: #fbbf24;
+        font-size: 0.75rem;
+    }
+
+    .review-comment {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin: 0.5rem 0;
+        font-style: italic;
+    }
+
+    .review-date {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+    }
+
+    .btn-link {
+        display: inline-block;
+        margin-top: 1rem;
+        color: var(--primary);
+        font-size: 0.875rem;
+        text-decoration: none;
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.75rem;
+        font-size: 0.75rem;
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-muted);
+    }
+
+    @media (max-width: 768px) {
+        .profile-content {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .verification-badge {
+            justify-content: center;
+        }
+    }
+
+    /* ⭐ NOVOS ESTILOS para a secção de pedido de senhorio ⭐ */
+    .role-request-section {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(139, 92, 246, 0.05));
+        border-radius: 0.75rem;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .role-request-section h2 {
+        color: var(--primary);
+    }
+
+    .alert-warning {
+        background: rgba(245, 158, 11, 0.1);
+        border-left: 3px solid var(--warning);
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .btn-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-size: 0.875rem;
+    }
+
+    .delete-account-section {
+        margin-bottom: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn-outline-danger {
+        background: transparent;
+        border: 1px solid var(--danger);
+        color: var(--danger);
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .btn-outline-danger:hover {
+        background: var(--danger);
+        color: white;
+    }
+
+    .form-section+.delete-account-section {
+        margin-top: 2rem;
+    }
+</style>
+{% endblock %}

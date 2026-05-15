@@ -1,0 +1,111 @@
+<!-- templates/faq.html -->
+{% extends "base.html" %}
+
+{% block title %}Perguntas Frequentes - Casa Direta{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="faq-header">
+        <h1><i class="fas fa-question-circle"></i> Perguntas Frequentes</h1>
+        <p>Tire suas dúvidas sobre a Casa Direta</p>
+    </div>
+
+    <div class="faq-list">
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>O que é a Casa Direta?</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <p>Plataforma que conecta diretamente senhorios e inquilinos, sem intermediários.</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>Quanto custa usar?</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <p>Grátis para publicar 1 imóvel. Planos premium disponíveis para mais funcionalidades.</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>Como faço para publicar um imóvel?</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <p>Crie conta como senhorio, clique em "Publicar" e preencha os dados do imóvel.</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>Como vocês evitam burlas?</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <p>Verificação de identidade, sistema anti-intermediário e moderação manual.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.faq-question').forEach(q => {
+    q.addEventListener('click', () => {
+        q.parentElement.classList.toggle('open');
+    });
+});
+</script>
+
+<style>
+.faq-header {
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.faq-item {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.faq-question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.faq-question:hover {
+    background: var(--bg-secondary);
+}
+
+.faq-question i {
+    transition: transform 0.3s;
+}
+
+.faq-item.open .faq-question i {
+    transform: rotate(180deg);
+}
+
+.faq-answer {
+    padding: 0 1.5rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s;
+}
+
+.faq-item.open .faq-answer {
+    padding: 0 1.5rem 1rem;
+    max-height: 200px;
+}
+</style>
+{% endblock %}
