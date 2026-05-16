@@ -9,7 +9,7 @@ Flask-CORS==4.0.0
 Flask-Mail==0.9.1
 
 # Database
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.10
 SQLAlchemy==2.0.25
 alembic==1.12.1
 
@@ -18,7 +18,7 @@ WTForms==3.0.1
 email-validator==2.0.0
 
 # Image Processing
-Pillow==10.0.1
+Pillow==10.4.0
 
 # Environment & Config
 python-dotenv==1.0.0
