@@ -29,7 +29,7 @@ class PropertyForm(FlaskForm):
         Length(min=3, max=200)
     ])
     
-    address = StringField('Endereço completo', validators=[
+    address = StringField('Endereço Completo', validators=[
         Optional(),
         Length(max=300)
     ])
@@ -76,7 +76,7 @@ class PropertyForm(FlaskForm):
     ])
     
     # Fotos - CORRIGIDO: usar MultipleFileField (importado corretamente)
-    photos = MultipleFileField('Fotos do imóvel', validators=[
+    photos = MultipleFileField('Fotos do Imóvel', validators=[
         FileAllowed(['jpg', 'jpeg', 'png', 'gif', 'webp'], 'Apenas imagens são permitidas (JPG, PNG, GIF, WEBP)')
     ])
     

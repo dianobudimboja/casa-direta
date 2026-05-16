@@ -167,7 +167,7 @@ def create_property():
                             if i == 0:  # Primeira foto é a principal
                                 main_photo = filename
                     except Exception as e:
-                        print(f"Erro ao salvar foto: {e}")
+                        print(f"Erro ao guardar foto: {e}")
         
         if uploaded_photos:
             property_obj.photos = uploaded_photos
@@ -177,7 +177,7 @@ def create_property():
         current_user.properties_count += 1
         db.session.commit()
         
-        flash('Imóvel publicado com sucesso!', 'success')
+        flash('Imóvel Publicado com Sucesso!', 'success')
         return redirect(url_for('main.property_detail', property_id=property_obj.id))
     
     # Se houver erros de validação, mostra-os
