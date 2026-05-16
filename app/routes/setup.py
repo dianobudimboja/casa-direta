@@ -18,7 +18,7 @@ def create_admin():
     """Rota temporária para criar administrador."""
     try:
         from ..models.user import User
-        admin = User.query.filter_by(email='diano.budimboja@gmail.com').first()
+        admin = User.query.filter_by(email='muhilicar@gmail.com').first()
         if admin:
             admin.is_admin = True
             admin.is_verified = True
