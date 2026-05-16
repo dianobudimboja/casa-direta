@@ -47,7 +47,6 @@ def create_app(config_class=Config):
     from .routes.contracts import bp as contracts_bp
     from .routes.favorites import bp as favorites_bp
     from .routes.reports import bp as reports_bp
-    from .routes.setup import bp as setup_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
@@ -60,7 +59,6 @@ def create_app(config_class=Config):
     app.register_blueprint(contracts_bp)
     app.register_blueprint(favorites_bp)
     app.register_blueprint(reports_bp)
-    app.register_blueprint(setup_bp)
 
     # API blueprints (futuro)
     # from .api.v1 import properties_api, ai_api
