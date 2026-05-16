@@ -34,38 +34,24 @@ def compress_image(image_path, max_size=(1200, 800), quality=85):
 
 
 def save_uploaded_file(file, subfolder='properties'):
-    """
-    Salva um ficheiro enviado pelo utilizador.
-    Retorna: nome do ficheiro salvo ou None se erro.
-    """
-    if not file or not allowed_file(file.filename):
+    """Salva um ficheiro enviado pelo utilizador."""
+    if not file or not file.filename:
         return None
     
-    # Gera nome único baseado no timestamp
+    # Gera nome único
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')[:-3]
     original_name = secure_filename(file.filename)
-    extension = original_name.rsplit('.', 1)[1].lower()
+    extension = original_name.rsplit('.', 1)[1].lower() if '.' in original_name else 'jpg'
+    new_filename = f"{timestamp}.{extension}"
     
-    # Converte para jpg para padronizar
-    if extension in ['png', 'gif', 'webp']:
-        new_filename = f"{timestamp}.jpg"
-    else:
-        new_filename = f"{timestamp}.{extension}"
-    
-    # Cria caminho completo
+    # Cria pasta se não existir
     upload_folder = os.path.join(current_app.config['UPLOAD_FOLDER'], subfolder)
     os.makedirs(upload_folder, exist_ok=True)
     
     filepath = os.path.join(upload_folder, new_filename)
-    
-    # Salva o ficheiro
     file.save(filepath)
     
-    # Comprime a imagem
-    compress_image(filepath)
-    
     return new_filename
-
 
 def delete_uploaded_file(filename, subfolder='properties'):
     """Remove um ficheiro de upload."""

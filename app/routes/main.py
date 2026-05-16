@@ -119,6 +119,8 @@ def property_detail(property_id):
 @login_required
 def create_property():
     """Página para criar um novo anúncio de imóvel."""
+    
+    # Verifica se o utilizador pode publicar mais imóveis
     if not current_user.can_publish_more_properties():
         flash('Você atingiu o limite de anúncios. Verifique a sua conta para publicar mais.', 'warning')
         return redirect(url_for('dashboard.index'))
@@ -126,6 +128,30 @@ def create_property():
     form = PropertyForm()
     
     if form.validate_on_submit():
+        # Processa as coordenadas
+        latitude = None
+        longitude = None
+        if form.latitude.data and form.longitude.data:
+            latitude = form.latitude.data
+            longitude = form.longitude.data
+        
+        # Cria o imóvel
+        property_obj = Property(
+            title=form.title.data,
+            description=form.description.data,
+            price=form.price.data,
+            location=form.location.data,
+            address=form.address.data or '',
+            neighborhood=form.neighborhood.data,
+            bedrooms=form.bedrooms.data,
+            bathrooms=form.bathrooms.data,
+            area=form.area.data,
+            latitude=latitude,
+            longitude=longitude,
+            is_featured=form.is_featured.data,
+            user_id=current_user.id
+        )
+        
         # Processa upload das fotos
         uploaded_photos = []
         main_photo = None
@@ -133,42 +159,32 @@ def create_property():
         if form.photos.data:
             for i, photo in enumerate(form.photos.data):
                 if photo and photo.filename:
-                    filename = save_uploaded_file(photo, 'properties')
-                    if filename:
-                        uploaded_photos.append(filename)
-                        if i == 0:  # Primeira foto é a principal
-                            main_photo = filename
+                    try:
+                        from ..utils.upload_helper import save_uploaded_file
+                        filename = save_uploaded_file(photo, 'properties')
+                        if filename:
+                            uploaded_photos.append(filename)
+                            if i == 0:  # Primeira foto é a principal
+                                main_photo = filename
+                    except Exception as e:
+                        print(f"Erro ao salvar foto: {e}")
         
-        property_obj = Property(
-            title=form.title.data,
-            description=form.description.data,
-            price=form.price.data,
-            location=form.location.data,
-            address=form.address.data,
-            neighborhood=form.neighborhood.data,
-            bedrooms=form.bedrooms.data,
-            bathrooms=form.bathrooms.data,
-            area=form.area.data,
-            is_featured=form.is_featured.data,
-            photos=uploaded_photos,
-            main_photo=main_photo,
-            user_id=current_user.id
-        )
+        if uploaded_photos:
+            property_obj.photos = uploaded_photos
+            property_obj.main_photo = main_photo
         
-        if form.validate_on_submit():
-            property_obj = Property(
-            # ... campos existentes ...
-            latitude=form.latitude.data,
-            longitude=form.longitude.data,
-            # ...
-        )
-
         db.session.add(property_obj)
         current_user.properties_count += 1
         db.session.commit()
         
         flash('Imóvel publicado com sucesso!', 'success')
         return redirect(url_for('main.property_detail', property_id=property_obj.id))
+    
+    # Se houver erros de validação, mostra-os
+    if form.errors:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f'Erro no campo {field}: {error}', 'danger')
     
     return render_template('properties/create.html', form=form)
 
