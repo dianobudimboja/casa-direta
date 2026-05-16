@@ -236,3 +236,26 @@ def cookies():
 def contact():
     """Página de Contacto."""
     return render_template('contact.html')
+
+@bp.route('/debug-form', methods=['GET', 'POST'])
+def debug_form():
+    """Rota temporária para debug do formulário."""
+    if request.method == 'POST':
+        return jsonify({
+            'form_data': dict(request.form),
+            'files': [f.filename for f in request.files.getlist('photos')] if request.files else []
+        })
+    
+    return '''
+    <form method="POST" enctype="multipart/form-data">
+        <input type="text" name="title" placeholder="Título" required><br>
+        <textarea name="description" placeholder="Descrição" required></textarea><br>
+        <input type="number" name="price" placeholder="Preço" required><br>
+        <input type="text" name="location" placeholder="Localização" required><br>
+        <input type="text" name="neighborhood" placeholder="Bairro" required><br>
+        <input type="number" name="bedrooms" value="1"><br>
+        <input type="number" name="bathrooms" value="1"><br>
+        <input type="file" name="photos" multiple><br>
+        <button type="submit">Enviar</button>
+    </form>
+    '''
