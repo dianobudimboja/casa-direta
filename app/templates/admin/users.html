@@ -35,7 +35,7 @@
                     <th>Contacto</th>
                     <th>Tipo</th>
                     <th>Verificação</th>
-                    <th>Status</th>
+                    <th>Estado</th>
                     <th>Imóveis</th>
                     <th>Data Registo</th>
                     <th>Ações</th>
@@ -147,6 +147,13 @@
                             <i class="fas fa-ban"></i>
                         </span>
                         {% endif %}
+
+                        <!-- Botão Redefinir Palavra-passe -->
+                        <a href="{{ url_for('admin.reset_user_password', user_id=user.id) }}" 
+                        class="action-btn reset-password" 
+                        title="Redefinir palavra-passe">
+                        <i class="fas fa-key"></i>
+                        </a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -476,5 +483,11 @@
         background: var(--danger);
         color: white;
     }
+
+    .action-btn.reset-password:hover {
+    background: var(--warning);
+    color: white;
+    }
+
 </style>
 {% endblock %}

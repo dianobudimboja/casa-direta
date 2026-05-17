@@ -115,3 +115,31 @@ def verify_user(user_id):
     
     flash(f'Utilizador {user.name} verificado com sucesso!', 'success')
     return redirect(url_for('admin.dashboard'))
+
+
+@bp.route('/support-reset-request', methods=['POST'])
+@login_required
+def support_reset_request():
+    """Rota para pedidos manuais de recuperação de senha (apenas admin)."""
+    
+    # Apenas administradores podem usar esta funcionalidade
+    if not current_user.is_admin:
+        flash('Acesso negado. Apenas administradores.', 'danger')
+        return redirect(url_for('main.index'))
+    
+    email = request.form.get('email')
+    
+    if email:
+        # Mostra no console (logs) para o admin processar
+        print("\n" + "="*60)
+        print("📧 PEDIDO DE RECUPERAÇÃO DE SENHA")
+        print("="*60)
+        print(f"Email: {email}")
+        print(f"Data: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
+        print("="*60 + "\n")
+        
+        flash('Pedido registado. Será contactado em breve.', 'success')
+    else:
+        flash('Email inválido.', 'danger')
+    
+    return redirect(url_for('password.forgot_password'))

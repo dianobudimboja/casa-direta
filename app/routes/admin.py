@@ -329,7 +329,7 @@ def approve_role_request(user_id):
     # Enviar notificação por email
     notify_role_request_processed(user, approved=True)
     
-    flash(f'✅ {user.name} agora é senhorio. Uma notificação foi enviada por email.', 'success')
+    flash(f'✅ {user.name} Agora é Senhorio. Uma notificação foi enviada por Email.', 'success')
     return redirect(url_for('admin.role_requests'))
 
 
@@ -408,3 +408,49 @@ def admin_delete_user(user_id):
     
     flash(f'✅ Utilizador "{user_name}" ({user_email}) foi eliminado permanentemente.', 'success')
     return redirect(url_for('admin.users'))
+
+
+@bp.route('/user/<int:user_id>/reset-password', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def reset_user_password(user_id):
+    """Redefine a palavra-passe de um utilizador (apenas admin)."""
+    
+    user = User.query.get_or_404(user_id)
+    
+    if request.method == 'POST':
+        new_password = request.form.get('new_password')
+        
+        if not new_password or len(new_password) < 6:
+            flash('A nova palavra-passe deve ter pelo menos 6 caracteres.', 'danger')
+            return redirect(url_for('admin.reset_user_password', user_id=user_id))
+        
+        # Define nova palavra-passe
+        user.set_password(new_password)
+        db.session.commit()
+        
+        flash(f'✅ Palavra-passe de {user.name} foi alterada para: {new_password}', 'success')
+        return redirect(url_for('admin.users'))
+    
+    return render_template('admin/reset_password.html', user=user)
+
+
+@bp.route('/support/reset-request', methods=['POST'])
+def support_reset_request():
+    """Rota para pedidos manuais de recuperação de senha."""
+    email = request.form.get('email')
+    
+    if email:
+        # Mostra no console (logs) para o admin processar
+        print("\n" + "="*60)
+        print("📧 PEDIDO DE RECUPERAÇÃO DE SENHA")
+        print("="*60)
+        print(f"Email: {email}")
+        print(f"Data: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
+        print("="*60 + "\n")
+        
+        flash('Pedido enviado ao Administrador. Será contactado em breve.', 'success')
+    else:
+        flash('Email inválido.', 'danger')
+    
+    return redirect(url_for('password.forgot_password'))
