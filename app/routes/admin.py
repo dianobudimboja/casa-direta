@@ -64,12 +64,14 @@ def dashboard():
 @login_required
 @admin_required
 def users():
-    """Lista de utilizadores."""
+    """Lista de utilizadores com pesquisa."""
     page = request.args.get('page', 1, type=int)
     filter_type = request.args.get('filter', 'all')
+    search_query = request.args.get('search', '')
     
     query = User.query
     
+    # Filtro por estados
     if filter_type == 'pending':
         query = query.filter_by(verification_status='pending')
     elif filter_type == 'verified':
@@ -77,9 +79,24 @@ def users():
     elif filter_type == 'landlords':
         query = query.filter_by(is_landlord=True)
     
+    # Pesquisa por nome, email ou telefone
+    if search_query:
+        query = query.filter(
+            db.or_(
+                User.name.ilike(f'%{search_query}%'),
+                User.email.ilike(f'%{search_query}%'),
+                User.phone.ilike(f'%{search_query}%')
+            )
+        )
+    
     users = query.order_by(User.created_at.desc()).paginate(page=page, per_page=20, error_out=False)
     
-    return render_template('admin/users.html', users=users, current_filter=filter_type)
+    return render_template(
+        'admin/users.html', 
+        users=users, 
+        current_filter=filter_type,
+        search_query=search_query
+    )
 
 
 @bp.route('/properties')
